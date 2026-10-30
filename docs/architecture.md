@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 2 implements a read-only Windows network inspector. Portable domain types remain independent of Windows APIs. The Windows adapter uses the ipconfig crate for adapter address/DNS metadata and Windows IP Helper APIs for interface indices and the routing table.
+Stage 2 provides read-only Windows network discovery. Stage 3 adds a provider-neutral contract for describing optional connection methods. No provider is currently integrated and no provider contract method applies network changes.
 
 ## Dependency direction
 
@@ -10,7 +10,8 @@ Dependencies point inward:
 
     app
      ├── core
-     ├── network (contracts)
+     ├── network (read-only inspection contract)
+     ├── providers (provider-neutral contracts)
      └── platform::windows
            ├── ipconfig
            └── Windows IP Helper APIs
@@ -19,8 +20,8 @@ Rules:
 
 1. core contains platform-independent domain data. It must not import Windows APIs, UI frameworks, provider SDKs, or operating-system adapters.
 2. network defines portable read-only inspection contracts and their errors. It does not call operating-system APIs directly.
-3. platform::windows implements discovery using read-only operating-system APIs and translates results into portable models.
-4. providers will contain provider identity, capabilities, and lifecycle contracts in a later stage.
+3. providers defines provider metadata, capabilities, availability, lifecycle status, sanitized errors, and change previews. It must not depend on a specific provider SDK or platform adapter.
+4. platform::windows implements discovery using read-only operating-system APIs and translates results into portable models.
 5. app is the composition root. It invokes application services and does not call Windows APIs directly.
 6. UI code, when introduced, will call application services. It must not call Windows networking APIs or provider implementations directly.
 
@@ -31,8 +32,25 @@ Rules:
 | app | Startup and composition root | CLI summary of the local snapshot |
 | core::network | Portable network observation models | Interfaces, addresses, routes, and address-family status |
 | network | Read-only inspection port | Inspector trait and typed errors |
+| providers | Provider-neutral connection contracts | Metadata, capabilities, prerequisites, status, errors, and change plans |
 | platform::windows | Windows discovery adapter | Adapters, addresses, DNS, interface indices, and route table |
-| providers | Provider contracts and capabilities | Deferred until Stage 3 |
+
+## Provider contract
+
+The `ConnectionProvider` trait is deliberately small and provider-neutral:
+
+- `metadata` returns a stable identifier and safe display metadata.
+- `capabilities` explicitly reports IPv4, IPv6, device-scoped routing, and status-inspection support. Unsupported capabilities are never inferred.
+- `inspect` returns a sanitized lifecycle status and prerequisite checks.
+- `plan_connect` and `plan_disconnect` return structured previews of intended effects. They do not execute those effects.
+
+The lifecycle status distinguishes unavailable, disconnected, connecting, connected, disconnecting, and error. Availability is separate from connection status and includes explicit prerequisite results.
+
+Provider failures cross the boundary only as stable categories: permission denied, missing prerequisite, unsupported, already in state, temporarily unavailable, or operation failed. Provider-specific diagnostic strings, credentials, tokens, and raw output are not retained in core-facing errors.
+
+A change plan identifies the requested operation, expected impact scope (this device, shared network, or unknown), and a list of non-secret change descriptions. The plan is descriptive only. A later lifecycle manager must require a separate explicit user action before applying any change.
+
+No dynamic third-party plugin loader is introduced. Provider implementations can be compiled into the application and tested through the trait.
 
 ## Windows discovery details
 
@@ -55,15 +73,17 @@ Rules:
 - Fallible infrastructure operations return Result<T, E>.
 - Windows API failures are surfaced as typed inspection errors with the originating API and error code.
 - Adapter enumeration failures are not converted into an empty successful snapshot.
+- Provider errors use stable categories and must not expose provider-specific diagnostic output.
 - Unmatched route interface indices are preserved rather than silently discarded.
 
 ## Safety boundary
 
-Stage 2 only calls read/query APIs. It does not modify DNS, routes, adapter state, MAC addresses, VPN/WARP state, firewall rules, proxy settings, or IP assignments. No network information is collected or transmitted outside the local process.
+Stage 2 only calls read/query APIs. Stage 3 only inspects provider metadata/status and builds operation previews. Neither stage modifies DNS, routes, adapter state, MAC addresses, VPN/WARP state, firewall rules, proxy settings, or IP assignments. No network information is collected or transmitted outside the local process. No automatic connection, disconnection, or address rotation is implemented.
 
 ## Testing strategy
 
 - Core models and address-family summaries are tested without operating-system access.
+- Provider contracts are tested with a mock implementation and explicit capability/status/error assertions.
 - Windows sockaddr conversion is tested with IPv4 and IPv6 fixtures.
 - Route-row conversion is tested with multiple IPv4/IPv6 rows, multiple interfaces, and an unmatched interface index; destination, next hop, metric, and interface correlation are asserted.
 - Windows CI compiles and tests the platform adapter, including a live read-only snapshot test.
