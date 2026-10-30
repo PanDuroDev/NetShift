@@ -17,7 +17,7 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Defines provider metadata, explicit capabilities, availability prerequisites, and lifecycle status.
 - Defines sanitized provider error categories and structured connect/disconnect change previews.
 - Provides a provider interface and a test-only mock implementation.
-- Does not execute connection operations or modify network state.
+- Supplies the provider contract and preview API consumed by the separate Stage 4 lifecycle manager.
 
 **Stage 4 — Provider lifecycle manager: implemented**
 
