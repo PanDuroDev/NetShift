@@ -78,7 +78,7 @@ No dynamic third-party plugin loader is introduced. Provider implementations can
 
 ## Safety boundary
 
-Windows discovery only calls read/query APIs. Provider contract inspection and previews are read-only; Stage 4 invokes provider operations only after explicit manager requests. The manager itself never directly modifies DNS, routes, adapter state, MAC addresses, firewall rules, proxy settings, or IP assignments. No automatic connection, disconnection, provider switching, or address rotation is implemented. No network information is collected or transmitted outside the local process. No automatic connection, disconnection, or address rotation is implemented.
+Windows discovery only calls read/query APIs. Provider contract inspection and previews are read-only; Stage 4 invokes provider operations only after explicit manager requests. The manager itself never directly modifies DNS, routes, adapter state, MAC addresses, firewall rules, proxy settings, or IP assignments. No network information is collected or transmitted outside the local process. No automatic connection, disconnection, provider switching, or address rotation is implemented.
 
 ## Testing strategy
 
