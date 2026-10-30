@@ -152,15 +152,13 @@ fn enumerate_routes(
     }
 
     let routes = unsafe {
-        let rows = std::slice::from_raw_parts(
-            (*table).Table.as_ptr(),
-            (*table).NumEntries as usize,
-        );
+        let rows =
+            std::slice::from_raw_parts((*table).Table.as_ptr(), (*table).NumEntries as usize);
         rows.iter()
             .filter_map(|row| {
                 let destination = sockaddr_to_ip(row.DestinationPrefix.Prefix)?;
-                let next_hop = sockaddr_to_ip(row.NextHop)
-                    .filter(|address| !address.is_unspecified());
+                let next_hop =
+                    sockaddr_to_ip(row.NextHop).filter(|address| !address.is_unspecified());
                 let interface_id = interfaces
                     .iter()
                     .find(|interface| {
