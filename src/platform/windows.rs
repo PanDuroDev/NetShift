@@ -7,7 +7,7 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::ptr::null_mut;
 
 use ipconfig::{OperStatus, get_adapters};
-use windows_sys::Win32::Foundation::{ERROR_BUFFER_OVERFLOW, ERROR_SUCCESS};
+use windows_sys::Win32::Foundation::{ERROR_BUFFER_OVERFLOW, ERROR_NOT_FOUND, ERROR_SUCCESS};
 use windows_sys::Win32::NetworkManagement::IpHelper::{
     FreeMibTable, GetAdaptersAddresses, GetIpForwardTable2, IP_ADAPTER_ADDRESSES_LH,
     MIB_IPFORWARD_TABLE2,
@@ -32,7 +32,10 @@ impl NetworkInspector for WindowsNetworkInspector {
         let interfaces = adapters
             .into_iter()
             .map(|adapter| {
-                let ipv4_index = indices.get(adapter.adapter_name()).map(|value| value.0);
+                let ipv4_index = indices
+                    .get(adapter.adapter_name())
+                    .map(|value| value.0)
+                    .filter(|index| *index != 0);
                 let ipv6_index = indices
                     .get(adapter.adapter_name())
                     .map(|value| value.1)
@@ -133,6 +136,9 @@ fn enumerate_routes(
     let mut table: *mut MIB_IPFORWARD_TABLE2 = null_mut();
     let result = unsafe { GetIpForwardTable2(AF_UNSPEC, &mut table) };
 
+    if result == ERROR_NOT_FOUND {
+        return Ok(Vec::new());
+    }
     if result != ERROR_SUCCESS {
         return Err(NetworkInspectionError::QueryFailed(format!(
             "GetIpForwardTable2 failed with Windows error {result}"
