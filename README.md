@@ -17,11 +17,8 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Defines provider metadata, explicit capabilities, availability prerequisites, and lifecycle status.
 - Defines sanitized provider error categories and structured connect/disconnect change previews.
 - Provides a provider interface and a test-only mock implementation.
-- Supplies the provider contract and preview API consumed by the separate Stage 4 lifecycle manager.
 
 **Stage 4 — Provider lifecycle manager: implemented**
-
-**Stage 5 — Safety invariants and integration tests: in progress**
 
 - Registers and enumerates providers by stable identifier.
 - Inspects availability and status before accepting an operation.
@@ -29,6 +26,12 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Runs connect/disconnect only through explicit manager calls, rejects shared-network or unknown-impact plans, and verifies the resulting provider state.
 - Preserves the pre-operation snapshot and reports failures with the best-known resulting state.
 - Uses deterministic mock providers; no production VPN/WARP integration is included.
+
+**Stage 5 — Safety invariants and integration tests: in progress**
+
+- Enforces device-only change scope before provider execution.
+- Adds cross-module tests for read-only inspection, explicit operation requests, and provider success/failure reporting.
+- Documents safety guarantees and local test commands.
 
 The current Windows network inspector remains read-only. The lifecycle manager does not directly modify Windows routes, DNS, adapters, or firewall rules. No automatic provider switching, background retries, IP rotation, or public egress IP lookup is implemented.
 
@@ -38,9 +41,9 @@ Interface addresses are local addresses assigned to adapters. They are not neces
 
 The IPv4/IPv6 status fields describe local address configuration and interface operational state only. They do not prove that DNS, a gateway, or the internet is reachable.
 
-## Architecture
+## Architecture and testing
 
-See docs/architecture.md for module responsibilities, Windows API usage, provider contracts, address-family semantics, and safety boundaries. See docs/testing.md for the local test guide and safety-test coverage.
+See [docs/architecture.md](docs/architecture.md) for module responsibilities, Windows API usage, provider contracts, address-family semantics, and safety boundaries. See [docs/testing.md](docs/testing.md) for the local test guide and safety-test coverage.
 
 ## Development
 
@@ -59,7 +62,7 @@ The live network inspector is currently Windows-only. Provider contracts and the
 
 ## Planned direction
 
-NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Production provider integrations remain planned; the provider lifecycle manager already supports explicit connect/disconnect execution through mock providers.
+NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Production provider integrations remain planned; the provider lifecycle manager currently supports explicit operations through test providers only.
 
 ## License
 
