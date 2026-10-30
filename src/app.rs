@@ -1,5 +1,7 @@
 //! Application startup and top-level composition.
 
+use crate::network::{NetworkInspectionError, NetworkInspector};
+
 /// Runs the application's network-inspection boundary.
 ///
 /// Keeping this boundary generic lets integration tests exercise the same
@@ -16,7 +18,6 @@ pub fn run() {
 
     #[cfg(windows)]
     {
-        use crate::network::{NetworkInspectionError, NetworkInspector};
         use crate::platform::windows::WindowsNetworkInspector;
 
         match inspect_network(&WindowsNetworkInspector) {
