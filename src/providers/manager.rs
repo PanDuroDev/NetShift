@@ -229,8 +229,8 @@ impl ProviderManager {
                     error: ProviderError::new(ProviderErrorCategory::OperationFailed),
                     after: Some(after),
                 },
-                Err(_) => OperationOutcome::Failed {
-                    error: ProviderError::new(ProviderErrorCategory::OperationFailed),
+                Err(error) => OperationOutcome::Failed {
+                    error,
                     after: None,
                 },
             },
@@ -264,6 +264,8 @@ mod tests {
         connect_supported: bool,
         disconnect_supported: bool,
         fail_connect: bool,
+        update_status_on_connect: bool,
+        inspect_error_when_connected: bool,
         calls: Rc<Cell<usize>>,
     }
 
@@ -275,6 +277,8 @@ mod tests {
                 connect_supported: true,
                 disconnect_supported: true,
                 fail_connect: false,
+                update_status_on_connect: true,
+                inspect_error_when_connected: false,
                 calls,
             }
         }
@@ -299,6 +303,9 @@ mod tests {
         }
 
         fn inspect(&self) -> Result<ProviderSnapshot, ProviderError> {
+            if self.inspect_error_when_connected && self.status == ProviderStatus::Connected {
+                return Err(ProviderError::new(ProviderErrorCategory::MissingPrerequisite));
+            }
             Ok(ProviderSnapshot {
                 status: self.status,
                 availability: ProviderAvailability {
@@ -333,7 +340,9 @@ mod tests {
                 self.status = ProviderStatus::Error;
                 return Err(ProviderError::new(ProviderErrorCategory::OperationFailed));
             }
-            self.status = ProviderStatus::Connected;
+            if self.update_status_on_connect {
+                self.status = ProviderStatus::Connected;
+            }
             Ok(())
         }
 
@@ -449,6 +458,96 @@ mod tests {
             Err(ManagerError::Unavailable)
         );
         assert_eq!(calls.get(), 0);
+    }
+
+    #[test]
+    fn successful_operation_requires_confirmed_target_state() {
+        let calls = Rc::new(Cell::new(0));
+        let mut provider =
+            MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls.clone());
+        provider.update_status_on_connect = false;
+        let mut manager = ProviderManager::new();
+        manager
+            .register(provider)
+            .expect("registration should succeed");
+
+        let report = manager
+            .connect("mock.alpha")
+            .expect("operation should be reported");
+        match report.outcome {
+            OperationOutcome::Failed { error, after } => {
+                assert_eq!(error.category, ProviderErrorCategory::OperationFailed);
+                assert_eq!(
+                    after.expect("post-operation state should be observable").status,
+                    ProviderStatus::Disconnected
+                );
+            }
+            OperationOutcome::Succeeded { .. } => {
+                panic!("unconfirmed target state must not be reported as success")
+            }
+        }
+        assert_eq!(calls.get(), 1);
+    }
+
+    #[test]
+    fn wrong_starting_state_is_rejected_before_execution() {
+        let calls = Rc::new(Cell::new(0));
+        let mut manager = ProviderManager::new();
+        manager
+            .register(MockProvider::new(
+                "mock.connected",
+                ProviderStatus::Connected,
+                calls.clone(),
+            ))
+            .expect("registration should succeed");
+        manager
+            .register(MockProvider::new(
+                "mock.disconnected",
+                ProviderStatus::Disconnected,
+                calls.clone(),
+            ))
+            .expect("registration should succeed");
+
+        assert_eq!(
+            manager.connect("mock.connected"),
+            Err(ManagerError::InvalidState {
+                expected: ProviderStatus::Disconnected,
+                actual: ProviderStatus::Connected,
+            })
+        );
+        assert_eq!(
+            manager.disconnect("mock.disconnected"),
+            Err(ManagerError::InvalidState {
+                expected: ProviderStatus::Connected,
+                actual: ProviderStatus::Disconnected,
+            })
+        );
+        assert_eq!(calls.get(), 0);
+    }
+
+    #[test]
+    fn post_operation_inspection_error_is_preserved() {
+        let calls = Rc::new(Cell::new(0));
+        let mut provider =
+            MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls);
+        provider.inspect_error_when_connected = true;
+        let mut manager = ProviderManager::new();
+        manager
+            .register(provider)
+            .expect("registration should succeed");
+
+        let report = manager
+            .connect("mock.alpha")
+            .expect("operation should be reported");
+        match report.outcome {
+            OperationOutcome::Failed { error, after } => {
+                assert_eq!(error.category, ProviderErrorCategory::MissingPrerequisite);
+                assert!(after.is_none());
+            }
+            OperationOutcome::Succeeded { .. } => {
+                panic!("inspection failure must not be reported as success")
+            }
+        }
     }
 
     #[test]
