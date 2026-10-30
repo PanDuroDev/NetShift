@@ -227,13 +227,24 @@ mod tests {
 
     #[test]
     fn live_inspector_returns_a_consistent_snapshot() {
-        use crate::network::NetworkInspector;
         use super::WindowsNetworkInspector;
+        use crate::network::NetworkInspector;
 
-        let snapshot = WindowsNetworkInspector.inspect().expect("Windows inspection should succeed");
-        assert!(snapshot.interfaces.iter().all(|interface| !interface.id.is_empty()));
+        let snapshot = WindowsNetworkInspector
+            .inspect()
+            .expect("Windows inspection should succeed");
+        assert!(
+            snapshot
+                .interfaces
+                .iter()
+                .all(|interface| !interface.id.is_empty())
+        );
         for route in &snapshot.routes {
-            let maximum_prefix = if route.destination.address.is_ipv4() { 32 } else { 128 };
+            let maximum_prefix = if route.destination.address.is_ipv4() {
+                32
+            } else {
+                128
+            };
             assert!(route.destination.prefix_length <= maximum_prefix);
         }
     }
