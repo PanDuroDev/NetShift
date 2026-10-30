@@ -65,5 +65,6 @@ Stage 2 only calls read/query APIs. It does not modify DNS, routes, adapter stat
 
 - Core models and address-family summaries are tested without operating-system access.
 - Windows sockaddr conversion is tested with IPv4 and IPv6 fixtures.
-- Windows CI compiles and tests the platform adapter.
+- Route-row conversion is tested with multiple IPv4/IPv6 rows, multiple interfaces, and an unmatched interface index; destination, next hop, metric, and interface correlation are asserted.
+- Windows CI compiles and tests the platform adapter, including a live read-only snapshot test.
 - Tests must not modify the machine's actual network configuration.
