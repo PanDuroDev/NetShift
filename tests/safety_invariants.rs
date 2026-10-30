@@ -191,10 +191,7 @@ fn only_an_explicit_device_scoped_request_can_connect_and_report_success() {
     let calls = Rc::new(Cell::new(0));
     let mut manager = ProviderManager::new();
     manager
-        .register(FixtureProvider::new(
-            ChangeScope::ThisDevice,
-            calls.clone(),
-        ))
+        .register(FixtureProvider::new(ChangeScope::ThisDevice, calls.clone()))
         .expect("fixture registration succeeds");
     assert_eq!(calls.get(), 0);
 
