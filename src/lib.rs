@@ -1,7 +1,11 @@
-//! NetShift application foundation.
+//! NetShift application library.
 //!
-//! Network providers and route-management capabilities will be introduced in
-//! later stages behind explicit, independently testable modules.
+//! The library separates portable domain models and infrastructure contracts
+//! from application startup and future platform-specific implementations.
+
+pub mod app;
+pub mod core;
+pub mod network;
 
 /// Current package version, sourced from Cargo metadata.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
