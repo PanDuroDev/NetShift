@@ -1,11 +1,9 @@
 //! NetShift application library.
-//!
-//! The library separates portable domain models and infrastructure contracts
-//! from application startup and future platform-specific implementations.
 
 pub mod app;
 pub mod core;
 pub mod network;
+pub mod platform;
 
 /// Current package version, sourced from Cargo metadata.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

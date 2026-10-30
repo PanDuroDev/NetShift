@@ -1,16 +1,13 @@
 //! Read-only network inspection boundary.
 //!
 //! Implementations belong in platform-specific adapters. This module contains
-//! only portable contracts and must never modify routes, DNS, adapters, or IPs.
+//! portable contracts and must never modify routes, DNS, adapters, or IPs.
 
 use crate::core::network::NetworkSnapshot;
 
 /// Reads the current network state without changing host configuration.
-///
-/// The trait is intentionally synchronous and dependency-free. A concrete
-/// platform implementation can be introduced when Stage 2 defines discovery.
 pub trait NetworkInspector {
-    /// Collects a snapshot of the current network interfaces.
+    /// Collects a snapshot of the current network state.
     fn inspect(&self) -> Result<NetworkSnapshot, NetworkInspectionError>;
 }
 
