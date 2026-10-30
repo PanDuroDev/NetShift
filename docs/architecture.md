@@ -42,7 +42,7 @@ The `ConnectionProvider` trait is deliberately small and provider-neutral:
 - `metadata` returns a stable identifier and safe display metadata.
 - `capabilities` explicitly reports IPv4, IPv6, device-scoped routing, and status-inspection support. Unsupported capabilities are never inferred.
 - `inspect` returns a sanitized lifecycle status and prerequisite checks.
-- `plan_connect` and `plan_disconnect` return structured previews of intended effects. They do not execute those effects.
+- `plan_connect` and `plan_disconnect` return structured previews of intended effects.\n- `connect` and `disconnect` execute an operation only when the lifecycle manager explicitly invokes them after validating support, availability, and current state.
 
 The lifecycle status distinguishes unavailable, disconnected, connecting, connected, disconnecting, and error. Availability is separate from connection status and includes explicit prerequisite results.
 
