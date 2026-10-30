@@ -69,7 +69,10 @@ impl std::fmt::Display for ManagerError {
                 formatter.write_str("provider returned a plan for the wrong operation")
             }
             Self::UnsafeChangeScope { actual } => {
-                write!(formatter, "provider change scope is not device-only: {actual:?}")
+                write!(
+                    formatter,
+                    "provider change scope is not device-only: {actual:?}"
+                )
             }
             Self::Provider(error) => error.fmt(formatter),
         }
