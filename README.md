@@ -4,7 +4,7 @@ NetShift is a Windows-focused network route management utility. The project is b
 
 ## Project status
 
-**Stage 2 — Read-only network discovery**
+**Stage 2 — Read-only network discovery: merged**
 
 - Enumerates Windows network adapters with stable adapter identifiers and operational state.
 - Reports assigned IPv4/IPv6 addresses and per-interface DNS servers.
@@ -12,7 +12,14 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Correlates routes with interfaces when Windows interface indices match.
 - Summarizes local IPv4/IPv6 configuration without claiming internet reachability.
 
-The current implementation is read-only. It does not change network configuration, activate VPN/WARP, rotate IP addresses, or query a public egress IP service.
+**Stage 3 — Provider-neutral contract: implemented**
+
+- Defines provider metadata, explicit capabilities, availability prerequisites, and lifecycle status.
+- Defines sanitized provider error categories and structured connect/disconnect change previews.
+- Provides a provider interface and a test-only mock implementation.
+- Does not execute connection operations or modify network state.
+
+The current implementation remains read-only. It does not change network configuration, activate VPN/WARP, rotate IP addresses, or query a public egress IP service.
 
 ## Address terminology
 
@@ -22,7 +29,7 @@ The IPv4/IPv6 status fields describe local address configuration and interface o
 
 ## Architecture
 
-See docs/architecture.md for module responsibilities, Windows API usage, address-family semantics, and safety boundaries.
+See docs/architecture.md for module responsibilities, Windows API usage, provider contracts, address-family semantics, and safety boundaries.
 
 ## Development
 
@@ -37,11 +44,11 @@ Run locally:
     cargo test --workspace --all-features
     cargo build --workspace --release
 
-The live network inspector is currently Windows-only. The portable domain models and tests remain platform-independent.
+The live network inspector is currently Windows-only. Provider contracts and their mock tests are platform-independent.
 
 ## Planned direction
 
-NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Each method will be designed and validated independently before integration. Provider contracts and lifecycle management are separate stages.
+NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Provider implementations and lifecycle execution will be introduced in later stages, after the provider-neutral contract is validated.
 
 ## License
 
