@@ -1,15 +1,27 @@
 //! Application startup and top-level composition.
 
+use crate::core::network::NetworkSnapshot;
+use crate::network::{NetworkInspectionError, NetworkInspector};
+
+/// Runs the application's network-inspection boundary.
+///
+/// Keeping this boundary generic lets integration tests exercise the same
+/// error propagation used by the platform-specific application entry point.
+pub fn inspect_network<I: NetworkInspector>(
+    inspector: &I,
+) -> Result<NetworkSnapshot, NetworkInspectionError> {
+    inspector.inspect()
+}
+
 /// Starts the command-line shell and displays a read-only local network summary.
 pub fn run() {
     println!("NetShift {}", crate::VERSION);
 
     #[cfg(windows)]
     {
-        use crate::network::NetworkInspector;
         use crate::platform::windows::WindowsNetworkInspector;
 
-        match WindowsNetworkInspector.inspect() {
+        match inspect_network(&WindowsNetworkInspector) {
             Ok(snapshot) => {
                 println!("Interfaces: {}", snapshot.interfaces.len());
                 for interface in &snapshot.interfaces {
