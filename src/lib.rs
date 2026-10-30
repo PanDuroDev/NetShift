@@ -4,6 +4,7 @@ pub mod app;
 pub mod core;
 pub mod network;
 pub mod platform;
+pub mod providers;
 
 /// Current package version, sourced from Cargo metadata.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
