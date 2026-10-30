@@ -42,13 +42,14 @@ The `ConnectionProvider` trait is deliberately small and provider-neutral:
 - `metadata` returns a stable identifier and safe display metadata.
 - `capabilities` explicitly reports IPv4, IPv6, device-scoped routing, and status-inspection support. Unsupported capabilities are never inferred.
 - `inspect` returns a sanitized lifecycle status and prerequisite checks.
-- `plan_connect` and `plan_disconnect` return structured previews of intended effects.\n- `connect` and `disconnect` execute an operation only when the lifecycle manager explicitly invokes them after validating support, availability, and current state.
+- `plan_connect` and `plan_disconnect` return structured previews of intended effects.
+- `connect` and `disconnect` execute an operation only when the lifecycle manager explicitly invokes them after validating support, availability, and current state.
 
 The lifecycle status distinguishes unavailable, disconnected, connecting, connected, disconnecting, and error. Availability is separate from connection status and includes explicit prerequisite results.
 
 Provider failures cross the boundary only as stable categories: permission denied, missing prerequisite, unsupported, already in state, temporarily unavailable, or operation failed. Provider-specific diagnostic strings, credentials, tokens, and raw output are not retained in core-facing errors.
 
-A change plan identifies the requested operation, expected impact scope (this device, shared network, or unknown), and a list of non-secret change descriptions. The plan is descriptive only. A later lifecycle manager must require a separate explicit user action before applying any change.
+A change plan identifies the requested operation, expected impact scope (this device, shared network, or unknown), and a list of non-secret change descriptions. The plan is descriptive only. The lifecycle manager invokes the operation only after an explicit application request and its precondition checks.
 
 No dynamic third-party plugin loader is introduced. Provider implementations can be compiled into the application and tested through the trait.
 
