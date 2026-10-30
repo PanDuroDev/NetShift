@@ -38,12 +38,18 @@ pub fn run() {
 
                 println!("Routes: {}", snapshot.routes.len());
                 for route in &snapshot.routes {
-                    let kind = if route.is_default() { "default" } else { "route" };
+                    let kind = if route.is_default() {
+                        "default"
+                    } else {
+                        "route"
+                    };
                     println!(
                         "- {kind}: {}/{} via {} interface {} metric {}",
                         route.destination.address,
                         route.destination.prefix_length,
-                        route.next_hop.map_or_else(|| "on-link".to_owned(), |ip| ip.to_string()),
+                        route
+                            .next_hop
+                            .map_or_else(|| "on-link".to_owned(), |ip| ip.to_string()),
                         route.interface_id.as_deref().unwrap_or("unresolved"),
                         route.metric
                     );
