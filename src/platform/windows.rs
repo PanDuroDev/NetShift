@@ -111,7 +111,7 @@ fn enumerate_interface_indices() -> Result<HashMap<String, (u32, u32)>, NetworkI
         while !adapter.is_null() {
             let current = &*adapter;
             if !current.AdapterName.is_null() {
-                let id = CStr::from_ptr(current.AdapterName)
+                let id = CStr::from_ptr(current.AdapterName.cast())
                     .to_string_lossy()
                     .into_owned();
 
