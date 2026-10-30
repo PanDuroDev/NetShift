@@ -26,7 +26,11 @@ pub struct WindowsNetworkInspector;
 impl NetworkInspector for WindowsNetworkInspector {
     fn inspect(&self) -> Result<NetworkSnapshot, NetworkInspectionError> {
         let adapters = get_adapters()
-            .map_err(|error| NetworkInspectionError::QueryFailed(error.to_string()))?;
+            .map_err(|error| {
+                NetworkInspectionError::QueryFailed(format!(
+                    "GetAdaptersAddresses failed: {error}"
+                ))
+            })?;
         let indices = enumerate_interface_indices()?;
 
         let interfaces = adapters
