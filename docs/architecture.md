@@ -2,7 +2,7 @@
 
 ## Current stage
 
-Stage 2 provides read-only Windows network discovery. Stage 3 adds a provider-neutral contract for describing optional connection methods. No provider is currently integrated and no provider contract method applies network changes.
+Stage 2 provides read-only Windows network discovery. Stage 3 defines the provider-neutral contract. Stage 4 adds an explicit, serialized lifecycle manager with deterministic mock providers. No production provider is integrated.
 
 ## Dependency direction
 
@@ -32,7 +32,7 @@ Rules:
 | app | Startup and composition root | CLI summary of the local snapshot |
 | core::network | Portable network observation models | Interfaces, addresses, routes, and address-family status |
 | network | Read-only inspection port | Inspector trait and typed errors |
-| providers | Provider-neutral connection contracts | Metadata, capabilities, prerequisites, status, errors, and change plans |
+| providers | Provider contracts and lifecycle coordination | Metadata, capabilities, prerequisites, status, errors, change plans, and explicit operation manager |
 | platform::windows | Windows discovery adapter | Adapters, addresses, DNS, interface indices, and route table |
 
 ## Provider contract
@@ -40,15 +40,16 @@ Rules:
 The `ConnectionProvider` trait is deliberately small and provider-neutral:
 
 - `metadata` returns a stable identifier and safe display metadata.
-- `capabilities` explicitly reports IPv4, IPv6, device-scoped routing, and status-inspection support. Unsupported capabilities are never inferred.
+- `capabilities` explicitly reports IPv4, IPv6, device-scoped routing, status-inspection, connect, and disconnect support. Unsupported capabilities are never inferred.
 - `inspect` returns a sanitized lifecycle status and prerequisite checks.
-- `plan_connect` and `plan_disconnect` return structured previews of intended effects. They do not execute those effects.
+- `plan_connect` and `plan_disconnect` return structured previews of intended effects.
+- `connect` and `disconnect` execute an operation only when the lifecycle manager explicitly invokes them after validating support, availability, and current state.
 
 The lifecycle status distinguishes unavailable, disconnected, connecting, connected, disconnecting, and error. Availability is separate from connection status and includes explicit prerequisite results.
 
 Provider failures cross the boundary only as stable categories: permission denied, missing prerequisite, unsupported, already in state, temporarily unavailable, or operation failed. Provider-specific diagnostic strings, credentials, tokens, and raw output are not retained in core-facing errors.
 
-A change plan identifies the requested operation, expected impact scope (this device, shared network, or unknown), and a list of non-secret change descriptions. The plan is descriptive only. A later lifecycle manager must require a separate explicit user action before applying any change.
+A change plan identifies the requested operation, expected impact scope (this device, shared network, or unknown), and a list of non-secret change descriptions. The plan is descriptive only. The lifecycle manager invokes the operation only after an explicit application request and its precondition checks.
 
 No dynamic third-party plugin loader is introduced. Provider implementations can be compiled into the application and tested through the trait.
 
@@ -78,12 +79,12 @@ No dynamic third-party plugin loader is introduced. Provider implementations can
 
 ## Safety boundary
 
-Stage 2 only calls read/query APIs. Stage 3 only inspects provider metadata/status and builds operation previews. Neither stage modifies DNS, routes, adapter state, MAC addresses, VPN/WARP state, firewall rules, proxy settings, or IP assignments. No network information is collected or transmitted outside the local process. No automatic connection, disconnection, or address rotation is implemented.
+Windows discovery only calls read/query APIs. Provider contract inspection and previews are read-only; Stage 4 invokes provider operations only after explicit manager requests. The manager itself never directly modifies DNS, routes, adapter state, MAC addresses, firewall rules, proxy settings, or IP assignments. No network information is collected or transmitted outside the local process. No automatic connection, disconnection, provider switching, or address rotation is implemented.
 
 ## Testing strategy
 
 - Core models and address-family summaries are tested without operating-system access.
-- Provider contracts are tested with a mock implementation and explicit capability/status/error assertions.
+- Provider contracts and lifecycle coordination are tested with deterministic mocks, including explicit-operation gating, capability rejection, state validation, confirmed transitions, duplicate registration, and failure-state reporting.
 - Windows sockaddr conversion is tested with IPv4 and IPv6 fixtures.
 - Route-row conversion is tested with multiple IPv4/IPv6 rows, multiple interfaces, and an unmatched interface index; destination, next hop, metric, and interface correlation are asserted.
 - Windows CI compiles and tests the platform adapter, including a live read-only snapshot test.

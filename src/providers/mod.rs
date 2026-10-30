@@ -1,7 +1,10 @@
 //! Provider-neutral contracts for optional connection methods.
 //!
-//! This module defines descriptions and requested-operation plans only. It does
-//! not load third-party plugins, access credentials, or change network state.
+//! This module defines provider metadata, explicit operation capabilities,
+//! inspection, and operation execution. Provider implementations must only
+//! execute operations requested explicitly by the application.
+
+pub mod manager;
 
 /// Stable identity and user-facing metadata for a connection provider.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -25,6 +28,10 @@ pub struct ProviderCapabilities {
     pub device_scoped_routing: bool,
     /// Provider can report its current connection state.
     pub status_inspection: bool,
+    /// Provider can execute a user-requested connection.
+    pub connect: bool,
+    /// Provider can execute a user-requested disconnection.
+    pub disconnect: bool,
 }
 
 /// A prerequisite checked by a provider before an operation is offered.
@@ -162,11 +169,10 @@ pub struct ProviderChangePlan {
     pub changes: Vec<PlannedChange>,
 }
 
-/// Provider-neutral interface implemented by built-in or mock providers.
+/// Provider-neutral interface for inspection, planning, and explicit operations.
 ///
-/// Methods are observational or produce previews only. Applying a plan is
-/// deliberately outside this stage and must require a separate explicit user
-/// action in a later lifecycle manager.
+/// Implementations must not initiate operations independently. The manager invokes
+/// connect/disconnect only in response to an explicit application request.
 pub trait ConnectionProvider {
     /// Returns stable identity and display metadata.
     fn metadata(&self) -> ProviderMetadata;
@@ -177,11 +183,17 @@ pub trait ConnectionProvider {
     /// Inspects current status and prerequisites without changing network state.
     fn inspect(&self) -> Result<ProviderSnapshot, ProviderError>;
 
-    /// Previews the effects of a user-requested connection.
+    /// Previews the effects of a connection before it is executed.
     fn plan_connect(&self) -> Result<ProviderChangePlan, ProviderError>;
 
-    /// Previews the effects of a user-requested disconnection.
+    /// Previews the effects of a disconnection before it is executed.
     fn plan_disconnect(&self) -> Result<ProviderChangePlan, ProviderError>;
+
+    /// Executes one explicitly requested connection.
+    fn connect(&mut self) -> Result<(), ProviderError>;
+
+    /// Executes one explicitly requested disconnection.
+    fn disconnect(&mut self) -> Result<(), ProviderError>;
 }
 
 #[cfg(test)]
@@ -211,6 +223,8 @@ mod tests {
                 ipv6: false,
                 device_scoped_routing: true,
                 status_inspection: true,
+                connect: true,
+                disconnect: true,
             }
         }
 
@@ -249,6 +263,16 @@ mod tests {
                 }],
             })
         }
+
+        fn connect(&mut self) -> Result<(), ProviderError> {
+            self.status = ProviderStatus::Connected;
+            Ok(())
+        }
+
+        fn disconnect(&mut self) -> Result<(), ProviderError> {
+            self.status = ProviderStatus::Disconnected;
+            Ok(())
+        }
     }
 
     #[test]
@@ -262,6 +286,8 @@ mod tests {
         assert!(!capabilities.ipv6);
         assert!(capabilities.device_scoped_routing);
         assert!(capabilities.status_inspection);
+        assert!(capabilities.connect);
+        assert!(capabilities.disconnect);
     }
 
     #[test]

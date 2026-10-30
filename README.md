@@ -12,14 +12,23 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Correlates routes with interfaces when Windows interface indices match.
 - Summarizes local IPv4/IPv6 configuration without claiming internet reachability.
 
-**Stage 3 — Provider-neutral contract: implemented**
+**Stage 3 — Provider-neutral contract: merged**
 
 - Defines provider metadata, explicit capabilities, availability prerequisites, and lifecycle status.
 - Defines sanitized provider error categories and structured connect/disconnect change previews.
 - Provides a provider interface and a test-only mock implementation.
-- Does not execute connection operations or modify network state.
+- Supplies the provider contract and preview API consumed by the separate Stage 4 lifecycle manager.
 
-The current implementation remains read-only. It does not change network configuration, activate VPN/WARP, rotate IP addresses, or query a public egress IP service.
+**Stage 4 — Provider lifecycle manager: implemented**
+
+- Registers and enumerates providers by stable identifier.
+- Inspects availability and status before accepting an operation.
+- Rejects unsupported operations and invalid lifecycle states before execution.
+- Runs connect/disconnect only through explicit manager calls and verifies the resulting provider state.
+- Preserves the pre-operation snapshot and reports failures with the best-known resulting state.
+- Uses deterministic mock providers; no production VPN/WARP integration is included.
+
+The current Windows network inspector remains read-only. The lifecycle manager does not directly modify Windows routes, DNS, adapters, or firewall rules. No automatic provider switching, background retries, IP rotation, or public egress IP lookup is implemented.
 
 ## Address terminology
 
@@ -48,7 +57,7 @@ The live network inspector is currently Windows-only. Provider contracts and the
 
 ## Planned direction
 
-NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Provider implementations and lifecycle execution will be introduced in later stages, after the provider-neutral contract is validated.
+NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Production provider integrations remain planned; the provider lifecycle manager already supports explicit connect/disconnect execution through mock providers.
 
 ## License
 
