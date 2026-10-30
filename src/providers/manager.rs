@@ -229,10 +229,7 @@ impl ProviderManager {
                     error: ProviderError::new(ProviderErrorCategory::OperationFailed),
                     after: Some(after),
                 },
-                Err(error) => OperationOutcome::Failed {
-                    error,
-                    after: None,
-                },
+                Err(error) => OperationOutcome::Failed { error, after: None },
             },
         };
 
@@ -304,7 +301,9 @@ mod tests {
 
         fn inspect(&self) -> Result<ProviderSnapshot, ProviderError> {
             if self.inspect_error_when_connected && self.status == ProviderStatus::Connected {
-                return Err(ProviderError::new(ProviderErrorCategory::MissingPrerequisite));
+                return Err(ProviderError::new(
+                    ProviderErrorCategory::MissingPrerequisite,
+                ));
             }
             Ok(ProviderSnapshot {
                 status: self.status,
@@ -478,7 +477,9 @@ mod tests {
             OperationOutcome::Failed { error, after } => {
                 assert_eq!(error.category, ProviderErrorCategory::OperationFailed);
                 assert_eq!(
-                    after.expect("post-operation state should be observable").status,
+                    after
+                        .expect("post-operation state should be observable")
+                        .status,
                     ProviderStatus::Disconnected
                 );
             }
@@ -528,8 +529,7 @@ mod tests {
     #[test]
     fn post_operation_inspection_error_is_preserved() {
         let calls = Rc::new(Cell::new(0));
-        let mut provider =
-            MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls);
+        let mut provider = MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls);
         provider.inspect_error_when_connected = true;
         let mut manager = ProviderManager::new();
         manager
