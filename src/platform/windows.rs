@@ -75,9 +75,7 @@ impl NetworkInspector for WindowsNetworkInspector {
 fn enumerate_interface_indices() -> Result<HashMap<String, (u32, u32)>, NetworkInspectionError> {
     let mut buffer_length = 16 * 1024_u32;
     let mut buffer = Vec::<u64>::new();
-    let result;
-
-    loop {
+    let result = loop {
         let word_count = (buffer_length as usize).div_ceil(std::mem::size_of::<u64>());
         buffer.resize(word_count, 0);
 
@@ -91,12 +89,10 @@ fn enumerate_interface_indices() -> Result<HashMap<String, (u32, u32)>, NetworkI
             )
         };
 
-        if current_result == ERROR_BUFFER_OVERFLOW {
-            continue;
+        if current_result != ERROR_BUFFER_OVERFLOW {
+            break current_result;
         }
-        result = current_result;
-        break;
-    }
+    };
 
     if result != ERROR_SUCCESS {
         return Err(NetworkInspectionError::QueryFailed(format!(
