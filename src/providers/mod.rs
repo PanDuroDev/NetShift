@@ -51,9 +51,9 @@ pub struct ProviderAvailability {
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum ProviderStatus {
     /// Provider is not installed or cannot currently be accessed.
+    #[default]
     Unavailable,
     /// Provider is available but not connected.
-    #[default]
     Disconnected,
     /// A user-requested connection operation is in progress.
     Connecting,
@@ -218,7 +218,7 @@ mod tests {
             Ok(ProviderSnapshot {
                 status: self.status,
                 availability: ProviderAvailability {
-                    available: true,
+                    available: self.status != ProviderStatus::Unavailable,
                     prerequisites: vec![ProviderPrerequisite {
                         id: "mock-ready".to_owned(),
                         description: "Mock provider is ready".to_owned(),
@@ -309,6 +309,7 @@ mod tests {
         let snapshot = provider.inspect().expect("mock inspection should succeed");
 
         assert_eq!(snapshot.status, ProviderStatus::Unavailable);
+        assert!(!snapshot.availability.available);
         assert!(!provider.capabilities().ipv6);
     }
 }
