@@ -1,3 +1,3 @@
 fn main() {
-    println!("NetShift {}", netshift::VERSION);
+    netshift::app::run();
 }
