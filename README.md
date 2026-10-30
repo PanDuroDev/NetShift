@@ -57,7 +57,7 @@ The live network inspector is currently Windows-only. Provider contracts and the
 
 ## Planned direction
 
-NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Provider implementations and lifecycle execution will be introduced in later stages, after the provider-neutral contract is validated.
+NetShift is intended to support multiple connection methods over time, rather than locking the project to a single provider. Production provider integrations remain planned; the provider lifecycle manager already supports explicit connect/disconnect execution through mock providers.
 
 ## License
 
