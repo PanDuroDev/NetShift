@@ -19,7 +19,16 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Provides a provider interface and a test-only mock implementation.
 - Does not execute connection operations or modify network state.
 
-**Stage 4 — Provider lifecycle manager: implemented**\n\n- Registers and enumerates providers by stable identifier.\n- Inspects availability and status before accepting an operation.\n- Rejects unsupported operations and invalid lifecycle states before execution.\n- Runs connect/disconnect only through explicit manager calls and verifies the resulting provider state.\n- Preserves the pre-operation snapshot and reports failures with the best-known resulting state.\n- Uses deterministic mock providers; no production VPN/WARP integration is included.\n\nThe current Windows network inspector remains read-only. The lifecycle manager does not directly modify Windows routes, DNS, adapters, or firewall rules. No automatic provider switching, background retries, IP rotation, or public egress IP lookup is implemented.
+**Stage 4 — Provider lifecycle manager: implemented**
+
+- Registers and enumerates providers by stable identifier.
+- Inspects availability and status before accepting an operation.
+- Rejects unsupported operations and invalid lifecycle states before execution.
+- Runs connect/disconnect only through explicit manager calls and verifies the resulting provider state.
+- Preserves the pre-operation snapshot and reports failures with the best-known resulting state.
+- Uses deterministic mock providers; no production VPN/WARP integration is included.
+
+The current Windows network inspector remains read-only. The lifecycle manager does not directly modify Windows routes, DNS, adapters, or firewall rules. No automatic provider switching, background retries, IP rotation, or public egress IP lookup is implemented.
 
 ## Address terminology
 
