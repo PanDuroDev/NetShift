@@ -159,8 +159,11 @@ fn enumerate_routes(
                 let destination = sockaddr_to_ip(row.DestinationPrefix.Prefix)?;
                 let next_hop =
                     sockaddr_to_ip(row.NextHop).filter(|address| !address.is_unspecified());
-                let interface_id =
-                    crate::core::network::find_interface_id(interfaces, destination, row.InterfaceIndex);
+                let interface_id = crate::core::network::find_interface_id(
+                    interfaces,
+                    destination,
+                    row.InterfaceIndex,
+                );
 
                 Some(NetworkRoute {
                     destination: IpPrefix {
