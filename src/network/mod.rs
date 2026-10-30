@@ -28,8 +28,12 @@ pub enum NetworkInspectionError {
 impl std::fmt::Display for NetworkInspectionError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::PermissionDenied => formatter.write_str("permission denied while inspecting network state"),
-            Self::Unsupported => formatter.write_str("network inspection is unsupported on this platform"),
+            Self::PermissionDenied => {
+                formatter.write_str("permission denied while inspecting network state")
+            }
+            Self::Unsupported => {
+                formatter.write_str("network inspection is unsupported on this platform")
+            }
             Self::QueryFailed(message) => write!(formatter, "network inspection failed: {message}"),
         }
     }
@@ -52,7 +56,9 @@ mod tests {
 
     #[test]
     fn inspector_contract_can_be_tested_without_host_network_access() {
-        let snapshot = FakeInspector.inspect().expect("fake inspection should succeed");
+        let snapshot = FakeInspector
+            .inspect()
+            .expect("fake inspection should succeed");
         assert!(snapshot.interfaces.is_empty());
     }
 
