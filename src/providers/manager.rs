@@ -7,8 +7,8 @@
 use std::collections::BTreeMap;
 
 use super::{
-    ChangeScope, ConnectionProvider, ProviderChangePlan, ProviderError, ProviderErrorCategory, ProviderMetadata,
-    ProviderOperation, ProviderSnapshot, ProviderStatus,
+    ChangeScope, ConnectionProvider, ProviderChangePlan, ProviderError, ProviderErrorCategory,
+    ProviderMetadata, ProviderOperation, ProviderSnapshot, ProviderStatus,
 };
 
 /// Errors detected by the manager before an operation can be safely invoked.
