@@ -12,7 +12,7 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Correlates routes with interfaces when Windows interface indices match.
 - Summarizes local IPv4/IPv6 configuration without claiming internet reachability.
 
-**Stage 3 — Provider-neutral contract: implemented in an open pull request**
+**Stage 3 — Provider-neutral contract: implemented**
 
 - Defines provider metadata, explicit capabilities, availability prerequisites, and lifecycle status.
 - Defines sanitized provider error categories and structured connect/disconnect change previews.
