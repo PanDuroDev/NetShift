@@ -226,6 +226,19 @@ mod tests {
     }
 
     #[test]
+    fn live_inspector_returns_a_consistent_snapshot() {
+        use crate::network::NetworkInspector;
+        use super::WindowsNetworkInspector;
+
+        let snapshot = WindowsNetworkInspector.inspect().expect("Windows inspection should succeed");
+        assert!(snapshot.interfaces.iter().all(|interface| !interface.id.is_empty()));
+        for route in &snapshot.routes {
+            let maximum_prefix = if route.destination.address.is_ipv4() { 32 } else { 128 };
+            assert!(route.destination.prefix_length <= maximum_prefix);
+        }
+    }
+
+    #[test]
     fn converts_ipv6_sockaddr() {
         let mut bytes = [0_u8; 28];
         bytes[0..2].copy_from_slice(&AF_INET6.to_ne_bytes());
