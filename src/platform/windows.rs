@@ -148,28 +148,17 @@ fn enumerate_routes(
         ));
     }
 
-    let routes = unsafe {
+    let rows = unsafe {
         let rows =
             std::slice::from_raw_parts((*table).Table.as_ptr(), (*table).NumEntries as usize);
         rows.iter()
             .filter_map(|row| {
-                let destination = sockaddr_to_ip(row.DestinationPrefix.Prefix)?;
-                let next_hop =
-                    sockaddr_to_ip(row.NextHop).filter(|address| !address.is_unspecified());
-                let interface_id = crate::core::network::find_interface_id(
-                    interfaces,
-                    destination,
-                    row.InterfaceIndex,
-                );
-
-                Some(NetworkRoute {
-                    destination: IpPrefix {
-                        address: destination,
-                        prefix_length: row.DestinationPrefix.PrefixLength,
-                    },
-                    next_hop,
+                Some(RouteRow {
+                    destination: sockaddr_to_ip(row.DestinationPrefix.Prefix)?,
+                    prefix_length: row.DestinationPrefix.PrefixLength,
+                    next_hop: sockaddr_to_ip(row.NextHop)
+                        .filter(|address| !address.is_unspecified()),
                     interface_index: row.InterfaceIndex,
-                    interface_id,
                     metric: row.Metric,
                 })
             })
@@ -177,7 +166,41 @@ fn enumerate_routes(
     };
 
     unsafe { FreeMibTable(table.cast()) };
-    Ok(routes)
+    Ok(convert_route_rows(rows, interfaces))
+}
+
+/// Platform-neutral values extracted from one Windows route-table row.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct RouteRow {
+    destination: IpAddr,
+    prefix_length: u8,
+    next_hop: Option<IpAddr>,
+    interface_index: u32,
+    metric: u32,
+}
+
+/// Converts route-table rows into the portable model and correlates each row
+/// with the correct address-family-specific interface index.
+fn convert_route_rows(
+    rows: impl IntoIterator<Item = RouteRow>,
+    interfaces: &[NetworkInterface],
+) -> Vec<NetworkRoute> {
+    rows.into_iter()
+        .map(|row| NetworkRoute {
+            destination: IpPrefix {
+                address: row.destination,
+                prefix_length: row.prefix_length,
+            },
+            next_hop: row.next_hop,
+            interface_index: row.interface_index,
+            interface_id: crate::core::network::find_interface_id(
+                interfaces,
+                row.destination,
+                row.interface_index,
+            ),
+            metric: row.metric,
+        })
+        .collect()
 }
 
 /// Converts the Windows SOCKADDR_INET union to a standard-library IP address.
@@ -204,7 +227,8 @@ unsafe fn sockaddr_to_ip(address: SOCKADDR_INET) -> Option<IpAddr> {
 
 #[cfg(test)]
 mod tests {
-    use super::sockaddr_to_ip;
+    use super::{RouteRow, convert_route_rows, sockaddr_to_ip};
+    use crate::core::network::NetworkInterface;
     use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
     use windows_sys::Win32::Networking::WinSock::{AF_INET, AF_INET6, SOCKADDR_INET};
 
@@ -218,6 +242,119 @@ mod tests {
         assert_eq!(
             unsafe { sockaddr_to_ip(address) },
             Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)))
+        );
+    }
+
+    fn test_interface(
+        id: &str,
+        ipv4_index: Option<u32>,
+        ipv6_index: Option<u32>,
+    ) -> NetworkInterface {
+        NetworkInterface {
+            id: id.to_owned(),
+            name: id.to_owned(),
+            ipv4_index,
+            ipv6_index,
+            is_up: true,
+            addresses: Vec::new(),
+            dns_servers: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn converts_multiple_ipv4_and_ipv6_route_rows_across_interfaces() {
+        let interfaces = vec![
+            test_interface("ethernet-guid", Some(7), Some(70)),
+            test_interface("wifi-guid", Some(8), Some(80)),
+        ];
+        let rows = vec![
+            RouteRow {
+                destination: IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
+                prefix_length: 0,
+                next_hop: Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1))),
+                interface_index: 7,
+                metric: 25,
+            },
+            RouteRow {
+                destination: IpAddr::V4(Ipv4Addr::new(10, 20, 0, 0)),
+                prefix_length: 16,
+                next_hop: None,
+                interface_index: 8,
+                metric: 40,
+            },
+            RouteRow {
+                destination: IpAddr::V6(Ipv6Addr::UNSPECIFIED),
+                prefix_length: 0,
+                next_hop: Some(IpAddr::V6("fe80::1".parse().unwrap())),
+                interface_index: 80,
+                metric: 15,
+            },
+            RouteRow {
+                destination: IpAddr::V6("2001:db8:1::".parse().unwrap()),
+                prefix_length: 48,
+                next_hop: None,
+                interface_index: 70,
+                metric: 60,
+            },
+        ];
+
+        let routes = convert_route_rows(rows, &interfaces);
+
+        assert_eq!(routes.len(), 4);
+        assert_eq!(
+            routes[0].destination,
+            crate::core::network::IpPrefix {
+                address: IpAddr::V4(Ipv4Addr::UNSPECIFIED),
+                prefix_length: 0,
+            }
+        );
+        assert_eq!(
+            routes[0].next_hop,
+            Some(IpAddr::V4(Ipv4Addr::new(192, 168, 1, 1)))
+        );
+        assert_eq!(routes[0].interface_id.as_deref(), Some("ethernet-guid"));
+        assert_eq!(routes[0].metric, 25);
+
+        assert_eq!(routes[1].interface_id.as_deref(), Some("wifi-guid"));
+        assert_eq!(routes[1].next_hop, None);
+        assert_eq!(routes[1].metric, 40);
+
+        assert_eq!(routes[2].interface_id.as_deref(), Some("wifi-guid"));
+        assert_eq!(
+            routes[2].next_hop,
+            Some(IpAddr::V6("fe80::1".parse().unwrap()))
+        );
+        assert_eq!(routes[2].metric, 15);
+
+        assert_eq!(routes[3].interface_id.as_deref(), Some("ethernet-guid"));
+        assert_eq!(routes[3].next_hop, None);
+        assert_eq!(routes[3].metric, 60);
+    }
+
+    #[test]
+    fn route_with_unmatched_interface_index_keeps_route_and_index() {
+        let interfaces = vec![test_interface("ethernet-guid", Some(7), Some(70))];
+        let rows = vec![RouteRow {
+            destination: IpAddr::V4(Ipv4Addr::new(172, 16, 0, 0)),
+            prefix_length: 12,
+            next_hop: Some(IpAddr::V4(Ipv4Addr::new(172, 16, 0, 1))),
+            interface_index: 999,
+            metric: 123,
+        }];
+
+        let routes = convert_route_rows(rows, &interfaces);
+
+        assert_eq!(routes.len(), 1);
+        assert_eq!(routes[0].interface_index, 999);
+        assert_eq!(routes[0].interface_id, None);
+        assert_eq!(routes[0].metric, 123);
+        assert_eq!(
+            routes[0].destination.address,
+            IpAddr::V4(Ipv4Addr::new(172, 16, 0, 0))
+        );
+        assert_eq!(
+            routes[0].next_hop,
+            Some(IpAddr::V4(Ipv4Addr::new(172, 16, 0, 1)))
         );
     }
 
