@@ -45,14 +45,14 @@ impl std::fmt::Display for ManagerError {
             Self::UnknownProvider => formatter.write_str("provider is not registered"),
             Self::DuplicateProvider => {
                 formatter.write_str("provider identifier is already registered")
-            },
+            }
             Self::InvalidProviderId => formatter.write_str("provider identifier must not be empty"),
             Self::StatusInspectionUnsupported => {
                 formatter.write_str("provider does not support status inspection")
             }
             Self::UnsupportedOperation => {
                 formatter.write_str("provider does not support this operation")
-            },
+            }
             Self::Unavailable => formatter.write_str("provider is currently unavailable"),
             Self::InvalidState { expected, actual } => {
                 write!(
@@ -62,7 +62,7 @@ impl std::fmt::Display for ManagerError {
             }
             Self::InvalidPlan => {
                 formatter.write_str("provider returned a plan for the wrong operation")
-            },
+            }
             Self::Provider(error) => error.fmt(formatter),
         }
     }
@@ -197,7 +197,7 @@ impl ProviderManager {
             ProviderOperation::Connect => (ProviderStatus::Disconnected, ProviderStatus::Connected),
             ProviderOperation::Disconnect => {
                 (ProviderStatus::Connected, ProviderStatus::Disconnected)
-            },
+            }
         };
         if before.status != required_state {
             return Err(ManagerError::InvalidState {
@@ -472,7 +472,7 @@ mod tests {
             }
             OperationOutcome::Succeeded { .. } => {
                 panic!("failed operation must not be reported as success")
-            },
+            }
         }
     }
 
