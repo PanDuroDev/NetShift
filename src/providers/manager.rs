@@ -131,9 +131,7 @@ impl ProviderManager {
                 entry.insert(Box::new(provider));
                 Ok(())
             }
-            std::collections::btree_map::Entry::Occupied(_) => {
-                Err(ManagerError::DuplicateProvider)
-            }
+            std::collections::btree_map::Entry::Occupied(_) => Err(ManagerError::DuplicateProvider),
         }
     }
 
@@ -389,7 +387,11 @@ mod tests {
         let calls = Rc::new(Cell::new(0));
         let mut manager = ProviderManager::new();
         manager
-            .register(MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls.clone()))
+            .register(MockProvider::new(
+                "mock.alpha",
+                ProviderStatus::Disconnected,
+                calls.clone(),
+            ))
             .expect("registration should succeed");
 
         let connected = manager
@@ -455,7 +457,9 @@ mod tests {
         let mut provider = MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls);
         provider.fail_connect = true;
         let mut manager = ProviderManager::new();
-        manager.register(provider).expect("registration should succeed");
+        manager
+            .register(provider)
+            .expect("registration should succeed");
 
         let report = manager
             .connect("mock.alpha")
@@ -481,7 +485,11 @@ mod tests {
         let calls = Rc::new(Cell::new(0));
         let mut manager = ProviderManager::new();
         manager
-            .register(MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls.clone()))
+            .register(MockProvider::new(
+                "mock.alpha",
+                ProviderStatus::Disconnected,
+                calls.clone(),
+            ))
             .expect("first registration should succeed");
 
         assert_eq!(
