@@ -21,10 +21,12 @@ NetShift is a Windows-focused network route management utility. The project is b
 
 **Stage 4 — Provider lifecycle manager: implemented**
 
+**Stage 5 — Safety invariants and integration tests: in progress**
+
 - Registers and enumerates providers by stable identifier.
 - Inspects availability and status before accepting an operation.
 - Rejects unsupported operations and invalid lifecycle states before execution.
-- Runs connect/disconnect only through explicit manager calls and verifies the resulting provider state.
+- Runs connect/disconnect only through explicit manager calls, rejects shared-network or unknown-impact plans, and verifies the resulting provider state.
 - Preserves the pre-operation snapshot and reports failures with the best-known resulting state.
 - Uses deterministic mock providers; no production VPN/WARP integration is included.
 
@@ -38,7 +40,7 @@ The IPv4/IPv6 status fields describe local address configuration and interface o
 
 ## Architecture
 
-See docs/architecture.md for module responsibilities, Windows API usage, provider contracts, address-family semantics, and safety boundaries.
+See docs/architecture.md for module responsibilities, Windows API usage, provider contracts, address-family semantics, and safety boundaries. See docs/testing.md for the local test guide and safety-test coverage.
 
 ## Development
 
