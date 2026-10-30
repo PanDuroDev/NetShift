@@ -43,17 +43,26 @@ impl std::fmt::Display for ManagerError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::UnknownProvider => formatter.write_str("provider is not registered"),
-            Self::DuplicateProvider => formatter.write_str("provider identifier is already registered"),
+            Self::DuplicateProvider => {
+                formatter.write_str("provider identifier is already registered")
+            },
             Self::InvalidProviderId => formatter.write_str("provider identifier must not be empty"),
             Self::StatusInspectionUnsupported => {
                 formatter.write_str("provider does not support status inspection")
             }
-            Self::UnsupportedOperation => formatter.write_str("provider does not support this operation"),
+            Self::UnsupportedOperation => {
+                formatter.write_str("provider does not support this operation")
+            },
             Self::Unavailable => formatter.write_str("provider is currently unavailable"),
             Self::InvalidState { expected, actual } => {
-                write!(formatter, "provider state is {actual:?}; expected {expected:?}")
+                write!(
+                    formatter,
+                    "provider state is {actual:?}; expected {expected:?}"
+                )
             }
-            Self::InvalidPlan => formatter.write_str("provider returned a plan for the wrong operation"),
+            Self::InvalidPlan => {
+                formatter.write_str("provider returned a plan for the wrong operation")
+            },
             Self::Provider(error) => error.fmt(formatter),
         }
     }
@@ -117,11 +126,15 @@ impl ProviderManager {
         if id.trim().is_empty() {
             return Err(ManagerError::InvalidProviderId);
         }
-        if self.providers.contains_key(&id) {
-            return Err(ManagerError::DuplicateProvider);
+        match self.providers.entry(id) {
+            std::collections::btree_map::Entry::Vacant(entry) => {
+                entry.insert(Box::new(provider));
+                Ok(())
+            }
+            std::collections::btree_map::Entry::Occupied(_) => {
+                Err(ManagerError::DuplicateProvider)
+            }
         }
-        self.providers.insert(id, Box::new(provider));
-        Ok(())
     }
 
     /// Returns provider metadata in stable identifier order.
@@ -182,7 +195,9 @@ impl ProviderManager {
 
         let (required_state, target_state) = match operation {
             ProviderOperation::Connect => (ProviderStatus::Disconnected, ProviderStatus::Connected),
-            ProviderOperation::Disconnect => (ProviderStatus::Connected, ProviderStatus::Disconnected),
+            ProviderOperation::Disconnect => {
+                (ProviderStatus::Connected, ProviderStatus::Disconnected)
+            },
         };
         if before.status != required_state {
             return Err(ManagerError::InvalidState {
@@ -336,13 +351,20 @@ mod tests {
         let calls = Rc::new(Cell::new(0));
         let mut manager = ProviderManager::new();
         manager
-            .register(MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls))
+            .register(MockProvider::new(
+                "mock.alpha",
+                ProviderStatus::Disconnected,
+                calls,
+            ))
             .expect("registration should succeed");
 
         assert_eq!(manager.providers().len(), 1);
         assert_eq!(manager.providers()[0].id, "mock.alpha");
         assert_eq!(
-            manager.inspect("mock.alpha").expect("inspection should succeed").status,
+            manager
+                .inspect("mock.alpha")
+                .expect("inspection should succeed")
+                .status,
             ProviderStatus::Disconnected
         );
     }
@@ -352,7 +374,11 @@ mod tests {
         let calls = Rc::new(Cell::new(0));
         let mut manager = ProviderManager::new();
         manager
-            .register(MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls.clone()))
+            .register(MockProvider::new(
+                "mock.alpha",
+                ProviderStatus::Disconnected,
+                calls.clone(),
+            ))
             .expect("registration should succeed");
 
         assert_eq!(calls.get(), 0);
@@ -366,12 +392,22 @@ mod tests {
             .register(MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls.clone()))
             .expect("registration should succeed");
 
-        let connected = manager.connect("mock.alpha").expect("connect should be invoked");
-        assert!(matches!(connected.outcome, OperationOutcome::Succeeded { .. }));
+        let connected = manager
+            .connect("mock.alpha")
+            .expect("connect should be invoked");
+        assert!(matches!(
+            connected.outcome,
+            OperationOutcome::Succeeded { .. }
+        ));
         assert_eq!(connected.before.status, ProviderStatus::Disconnected);
 
-        let disconnected = manager.disconnect("mock.alpha").expect("disconnect should be invoked");
-        assert!(matches!(disconnected.outcome, OperationOutcome::Succeeded { .. }));
+        let disconnected = manager
+            .disconnect("mock.alpha")
+            .expect("disconnect should be invoked");
+        assert!(matches!(
+            disconnected.outcome,
+            OperationOutcome::Succeeded { .. }
+        ));
         assert_eq!(disconnected.before.status, ProviderStatus::Connected);
         assert_eq!(calls.get(), 2);
     }
@@ -379,12 +415,18 @@ mod tests {
     #[test]
     fn unsupported_operation_is_rejected_before_provider_execution() {
         let calls = Rc::new(Cell::new(0));
-        let mut provider = MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls.clone());
+        let mut provider =
+            MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls.clone());
         provider.connect_supported = false;
         let mut manager = ProviderManager::new();
-        manager.register(provider).expect("registration should succeed");
+        manager
+            .register(provider)
+            .expect("registration should succeed");
 
-        assert_eq!(manager.connect("mock.alpha"), Err(ManagerError::UnsupportedOperation));
+        assert_eq!(
+            manager.connect("mock.alpha"),
+            Err(ManagerError::UnsupportedOperation)
+        );
         assert_eq!(calls.get(), 0);
     }
 
@@ -393,10 +435,17 @@ mod tests {
         let calls = Rc::new(Cell::new(0));
         let mut manager = ProviderManager::new();
         manager
-            .register(MockProvider::new("mock.alpha", ProviderStatus::Unavailable, calls.clone()))
+            .register(MockProvider::new(
+                "mock.alpha",
+                ProviderStatus::Unavailable,
+                calls.clone(),
+            ))
             .expect("registration should succeed");
 
-        assert_eq!(manager.connect("mock.alpha"), Err(ManagerError::Unavailable));
+        assert_eq!(
+            manager.connect("mock.alpha"),
+            Err(ManagerError::Unavailable)
+        );
         assert_eq!(calls.get(), 0);
     }
 
@@ -408,13 +457,22 @@ mod tests {
         let mut manager = ProviderManager::new();
         manager.register(provider).expect("registration should succeed");
 
-        let report = manager.connect("mock.alpha").expect("operation should be reported");
+        let report = manager
+            .connect("mock.alpha")
+            .expect("operation should be reported");
         match report.outcome {
             OperationOutcome::Failed { error, after } => {
                 assert_eq!(error.category, ProviderErrorCategory::OperationFailed);
-                assert_eq!(after.expect("post-failure state should be observable").status, ProviderStatus::Error);
+                assert_eq!(
+                    after
+                        .expect("post-failure state should be observable")
+                        .status,
+                    ProviderStatus::Error
+                );
             }
-            OperationOutcome::Succeeded { .. } => panic!("failed operation must not be reported as success"),
+            OperationOutcome::Succeeded { .. } => {
+                panic!("failed operation must not be reported as success")
+            },
         }
     }
 
@@ -427,7 +485,11 @@ mod tests {
             .expect("first registration should succeed");
 
         assert_eq!(
-            manager.register(MockProvider::new("mock.alpha", ProviderStatus::Disconnected, calls)),
+            manager.register(MockProvider::new(
+                "mock.alpha",
+                ProviderStatus::Disconnected,
+                calls
+            )),
             Err(ManagerError::DuplicateProvider)
         );
     }
