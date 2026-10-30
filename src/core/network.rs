@@ -61,6 +61,28 @@ pub struct NetworkRoute {
     pub metric: u32,
 }
 
+/// Finds the stable interface ID using the route destination's address family.
+///
+/// Windows maintains separate IPv4 and IPv6 interface indices, so the family
+/// must be considered even when two adapters share the same numeric index.
+pub fn find_interface_id(
+    interfaces: &[NetworkInterface],
+    destination: IpAddr,
+    index: u32,
+) -> Option<String> {
+    interfaces
+        .iter()
+        .find(|interface| {
+            let family_index = if destination.is_ipv4() {
+                interface.ipv4_index
+            } else {
+                interface.ipv6_index
+            };
+            family_index == Some(index)
+        })
+        .map(|interface| interface.id.clone())
+}
+
 impl NetworkRoute {
     /// Returns true when this route is a default route (0.0.0.0/0 or ::/0).
     pub fn is_default(&self) -> bool {
@@ -124,6 +146,60 @@ mod tests {
             addresses,
             dns_servers: Vec::new(),
         }
+    }
+
+    #[test]
+    fn interface_lookup_uses_ipv4_index() {
+        let mut ethernet = interface("Ethernet", true, Vec::new());
+        ethernet.ipv4_index = Some(7);
+        let interfaces = vec![ethernet];
+
+        assert_eq!(
+            super::find_interface_id(&interfaces, IpAddr::V4(Ipv4Addr::LOCALHOST), 7),
+            Some("adapter-Ethernet".to_owned())
+        );
+    }
+
+    #[test]
+    fn interface_lookup_uses_ipv6_index() {
+        let mut wifi = interface("Wi-Fi", true, Vec::new());
+        wifi.ipv6_index = Some(12);
+        let interfaces = vec![wifi];
+
+        assert_eq!(
+            super::find_interface_id(&interfaces, IpAddr::V6(Ipv6Addr::LOCALHOST), 12),
+            Some("adapter-Wi-Fi".to_owned())
+        );
+    }
+
+    #[test]
+    fn interface_lookup_disambiguates_equal_indices_by_family() {
+        let mut ethernet = interface("Ethernet", true, Vec::new());
+        ethernet.ipv4_index = Some(5);
+        let mut wifi = interface("Wi-Fi", true, Vec::new());
+        wifi.ipv6_index = Some(5);
+        let interfaces = vec![ethernet, wifi];
+
+        assert_eq!(
+            super::find_interface_id(&interfaces, IpAddr::V4(Ipv4Addr::LOCALHOST), 5),
+            Some("adapter-Ethernet".to_owned())
+        );
+        assert_eq!(
+            super::find_interface_id(&interfaces, IpAddr::V6(Ipv6Addr::LOCALHOST), 5),
+            Some("adapter-Wi-Fi".to_owned())
+        );
+    }
+
+    #[test]
+    fn interface_lookup_returns_none_for_unmatched_index() {
+        let mut ethernet = interface("Ethernet", true, Vec::new());
+        ethernet.ipv4_index = Some(7);
+        let interfaces = vec![ethernet];
+
+        assert_eq!(
+            super::find_interface_id(&interfaces, IpAddr::V4(Ipv4Addr::LOCALHOST), 99),
+            None
+        );
     }
 
     #[test]
