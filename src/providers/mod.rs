@@ -222,7 +222,7 @@ mod tests {
                     prerequisites: vec![ProviderPrerequisite {
                         id: "mock-ready".to_owned(),
                         description: "Mock provider is ready".to_owned(),
-                        satisfied: true,
+                        satisfied: self.status != ProviderStatus::Unavailable,
                     }],
                 },
             })
