@@ -7,6 +7,7 @@ use std::cell::Cell;
 use std::net::{IpAddr, Ipv4Addr};
 use std::rc::Rc;
 
+use netshift::app::inspect_network;
 use netshift::core::network::{NetworkInterface, NetworkSnapshot};
 use netshift::network::{NetworkInspectionError, NetworkInspector};
 use netshift::providers::manager::{ManagerError, OperationOutcome, ProviderManager};
@@ -140,7 +141,7 @@ fn inspection_and_provider_registration_do_not_start_operations() {
         calls: inspection_calls.clone(),
         result: Ok(interface_fixture()),
     };
-    let snapshot = inspector.inspect().expect("fixture inspection succeeds");
+    let snapshot = inspect_network(&inspector).expect("fixture inspection succeeds");
     assert_eq!(snapshot.interfaces.len(), 1);
     assert_eq!(inspection_calls.get(), 1);
 
@@ -231,7 +232,7 @@ fn failed_provider_operation_is_reported_as_failed_with_observed_state() {
 }
 
 #[test]
-fn network_inspection_failure_is_not_converted_to_an_empty_snapshot() {
+fn app_inspection_flow_propagates_a_platform_query_failure() {
     let calls = Rc::new(Cell::new(0));
     let inspector = FixtureInspector {
         calls: calls.clone(),
@@ -240,8 +241,10 @@ fn network_inspection_failure_is_not_converted_to_an_empty_snapshot() {
         )),
     };
 
+    let result = inspect_network(&inspector);
+
     assert_eq!(
-        inspector.inspect(),
+        result,
         Err(NetworkInspectionError::QueryFailed(
             "fixture failure".to_owned()
         ))
