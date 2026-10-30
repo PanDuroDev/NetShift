@@ -187,10 +187,9 @@ pub trait ConnectionProvider {
 #[cfg(test)]
 mod tests {
     use super::{
-        ChangeScope, ConnectionProvider, PlannedChange, ProviderAvailability,
-        ProviderCapabilities, ProviderChangePlan, ProviderError, ProviderErrorCategory,
-        ProviderMetadata, ProviderOperation, ProviderPrerequisite, ProviderSnapshot,
-        ProviderStatus,
+        ChangeScope, ConnectionProvider, PlannedChange, ProviderAvailability, ProviderCapabilities,
+        ProviderChangePlan, ProviderError, ProviderErrorCategory, ProviderMetadata,
+        ProviderOperation, ProviderPrerequisite, ProviderSnapshot, ProviderStatus,
     };
 
     struct MockProvider {
@@ -283,7 +282,9 @@ mod tests {
             status: ProviderStatus::Disconnected,
         };
         let connect = provider.plan_connect().expect("connect plan should exist");
-        let disconnect = provider.plan_disconnect().expect("disconnect plan should exist");
+        let disconnect = provider
+            .plan_disconnect()
+            .expect("disconnect plan should exist");
 
         assert_eq!(connect.operation, ProviderOperation::Connect);
         assert_eq!(disconnect.operation, ProviderOperation::Disconnect);
