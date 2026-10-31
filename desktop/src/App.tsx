@@ -6,7 +6,6 @@ import {
   Bell,
   Cable,
   Check,
-  ChevronDown,
   ChevronRight,
   CircleAlert,
   CircleHelp,
@@ -160,9 +159,9 @@ function CopyField({
         type="button"
         onClick={() => void copy()}
         aria-label={`Copy ${label}`}
-        title={`Copy ${label}`}
+        data-tooltip={`Copy ${label}`}
       >
-        <Copy size={15} aria-hidden="true" />
+        <Copy size={20} aria-hidden="true" />
       </button>
     </div>
   );
@@ -189,12 +188,12 @@ function MetricCard({
     <article className="surface-card metric-card">
       <div className="metric-card-top">
         <span className="metric-icon">
-          <Icon size={18} aria-hidden="true" />
+          <Icon size={24} aria-hidden="true" />
         </span>
         <span className="metric-label">{label}</span>
         {trend ? (
           <span className={`metric-trend metric-trend--${trend}`}>
-            {trend === "up" ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+            {trend === "up" ? <ArrowUpRight size={20} /> : <ArrowDownRight size={20} />}
           </span>
         ) : null}
       </div>
@@ -205,9 +204,10 @@ function MetricCard({
             type="button"
             className="icon-button metric-copy"
             aria-label={`Copy ${copyLabel}`}
+            data-tooltip={`Copy ${copyLabel}`}
             onClick={() => onCopy(copyLabel, value)}
           >
-            <Copy size={14} aria-hidden="true" />
+            <Copy size={20} aria-hidden="true" />
           </button>
         ) : null}
       </div>
@@ -312,7 +312,7 @@ function App() {
       <aside className="sidebar" aria-label="Application sidebar">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true">
-            <Network size={21} strokeWidth={2.1} />
+            <Network size={24} strokeWidth={2} />
           </div>
           <div className="brand-copy">
             <span className="brand-name">NetShift</span>
@@ -321,12 +321,11 @@ function App() {
         </div>
 
         <div className="workspace-switcher">
-          <div className="workspace-avatar"><Laptop size={16} aria-hidden="true" /></div>
+          <div className="workspace-avatar"><Laptop size={20} aria-hidden="true" /></div>
           <div className="workspace-copy">
             <span>My device</span>
             <small>Windows desktop</small>
           </div>
-          <ChevronDown size={15} className="workspace-chevron" aria-hidden="true" />
         </div>
 
         <nav className="primary-nav" aria-label="Primary navigation">
@@ -338,10 +337,10 @@ function App() {
               key={id}
               onClick={() => setView(id)}
               aria-current={view === id ? "page" : undefined}
-              title={label}
+              data-tooltip={label}
               aria-label={id === "diagnostics" ? `${label} 3` : label}
             >
-              <Icon size={19} strokeWidth={1.9} aria-hidden="true" />
+              <Icon size={24} strokeWidth={2} aria-hidden="true" />
               <span>{label}</span>
               {id === "diagnostics" ? <>{" "}<span className="nav-count">3</span></> : null}
             </button>
@@ -350,7 +349,7 @@ function App() {
 
         <div className="sidebar-bottom">
           <div className="sidebar-help">
-            <div className="help-icon"><CircleHelp size={17} aria-hidden="true" /></div>
+            <div className="help-icon"><CircleHelp size={20} aria-hidden="true" /></div>
             <div>
               <strong>Need a hand?</strong>
               <span>Explore the demo safely.</span>
@@ -359,13 +358,14 @@ function App() {
               className="icon-button"
               type="button"
               aria-label="About this prototype"
+              data-tooltip="About this prototype"
               onClick={() => showPreviewNotice(
                 "About this prototype",
                 "This is a static, mock-data interface for evaluating the desktop shell.",
                 "It does not inspect adapters, routes, DNS, VPN clients, or public IP addresses. Connection-changing actions are disabled.",
               )}
             >
-              <ArrowRight size={15} aria-hidden="true" />
+              <ArrowRight size={20} aria-hidden="true" />
             </button>
           </div>
           <div className="sidebar-footer">
@@ -380,13 +380,13 @@ function App() {
         <header className="topbar">
           <div className="breadcrumbs">
             <span>NetShift</span>
-            <ChevronRight size={14} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
             <strong>{heading.title}</strong>
           </div>
 
           <div className="topbar-actions">
             <form className="search-box" onSubmit={runSearch} role="search">
-              <Search size={17} aria-hidden="true" />
+              <Search size={20} aria-hidden="true" />
               <input
                 type="search"
                 value={query}
@@ -401,25 +401,29 @@ function App() {
               className="icon-button topbar-icon"
               type="button"
               aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              data-tooltip={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
             </button>
             <button
               className="icon-button topbar-icon notification-button"
               type="button"
               aria-label="Notifications"
+              data-tooltip="Notifications"
               onClick={() => showPreviewNotice(
                 "You're all caught up",
                 "There are no live notifications in this prototype.",
                 "Network events and provider state are not being monitored.",
               )}
             >
-              <Bell size={18} aria-hidden="true" />
+              <Bell size={24} aria-hidden="true" />
               <span className="notification-dot" />
             </button>
-            <div className="profile-avatar" aria-label="Local demo profile">DB</div>
+            <span className="profile-avatar">
+              <span aria-hidden="true">DB</span>
+              <span className="sr-only">Local demo profile</span>
+            </span>
           </div>
         </header>
 
@@ -436,7 +440,7 @@ function App() {
                 "The shell has no network inspection command, provider action, or system configuration permission.",
               )}
             >
-              Safety details <ChevronRight size={14} />
+              Safety details <ChevronRight size={20} />
             </button>
           </div>
 
@@ -446,9 +450,9 @@ function App() {
             description={heading.description}
             action={
               <div className="heading-actions">
-                <span className="last-updated"><Clock3 size={14} /> Updated {lastUpdated}</span>
+                <span className="last-updated"><Clock3 size={20} /> Updated {lastUpdated}</span>
                 <button className="button button--outlined" type="button" onClick={refreshSample}>
-                  <RefreshCw size={16} aria-hidden="true" />
+                  <RefreshCw size={20} aria-hidden="true" />
                   Refresh sample
                 </button>
               </div>
@@ -490,14 +494,15 @@ function App() {
         aria-labelledby="dialog-title"
         onClose={() => setDialog(null)}
       >
-        <div className="dialog-symbol"><ShieldCheck size={23} aria-hidden="true" /></div>
+        <div className="dialog-symbol"><ShieldCheck size={24} aria-hidden="true" /></div>
         <button
           type="button"
           className="icon-button dialog-close"
           aria-label="Close dialog"
+          data-tooltip="Close dialog"
           onClick={() => setDialog(null)}
         >
-          <X size={18} aria-hidden="true" />
+          <X size={24} aria-hidden="true" />
         </button>
         <p className="eyebrow">PROTOTYPE NOTICE</p>
         <h2 id="dialog-title">{dialog?.title ?? "Preview only"}</h2>
@@ -539,13 +544,8 @@ function OverviewView({
               <h2>Your connection, at a glance.</h2>
               <p className="hero-description">A sample snapshot of the local network path for this device.</p>
             </div>
-            <span className="demo-orbit" aria-hidden="true">
-              <span className="orbit-ring orbit-ring--outer" />
-              <span className="orbit-ring orbit-ring--inner" />
-              <span className="orbit-core"><Network size={31} /></span>
-              <span className="orbit-node orbit-node--top" />
-              <span className="orbit-node orbit-node--right" />
-              <span className="orbit-node orbit-node--bottom" />
+            <span className="hero-symbol" aria-hidden="true">
+              <Network size={24} />
             </span>
           </div>
           <div className="hero-status-line">
@@ -568,7 +568,7 @@ function OverviewView({
               className="button button--hero"
               onClick={() => onNavigate("providers")}
             >
-              Explore providers <ArrowRight size={16} />
+              Explore providers <ArrowRight size={20} />
             </button>
           </div>
         </article>
@@ -579,16 +579,16 @@ function OverviewView({
               <span className="eyebrow">ROUTE SUMMARY</span>
               <h3>Default route</h3>
             </div>
-            <span className="subtle-icon"><Route size={18} /></span>
+            <span className="subtle-icon"><Route size={24} /></span>
           </div>
           <div className="route-visual">
             <div className="route-endpoint">
-              <span className="route-endpoint-icon"><Laptop size={17} /></span>
+              <span className="route-endpoint-icon"><Laptop size={20} /></span>
               <div><strong>This device</strong><small>Ethernet 2</small></div>
             </div>
             <div className="route-path"><span /><span /><span /></div>
             <div className="route-endpoint">
-              <span className="route-endpoint-icon route-endpoint-icon--accent"><Globe size={17} /></span>
+              <span className="route-endpoint-icon route-endpoint-icon--accent"><Globe size={20} /></span>
               <div><strong>Gateway</strong><small dir="ltr">{sampleValues.gateway}</small></div>
             </div>
           </div>
@@ -597,7 +597,7 @@ function OverviewView({
             <StatusTag tone="positive">Sample route</StatusTag>
           </div>
           <button type="button" className="text-link" onClick={() => onNavigate("diagnostics")}>
-            View route details <ChevronRight size={15} />
+            View route details <ChevronRight size={20} />
           </button>
         </article>
       </section>
@@ -670,7 +670,7 @@ function OverviewView({
             </div>
           </div>
           <button type="button" className="text-link" onClick={() => onNavigate("diagnostics")}>
-            Open diagnostics <ChevronRight size={15} />
+            Open diagnostics <ChevronRight size={20} />
           </button>
         </article>
 
@@ -684,19 +684,20 @@ function OverviewView({
               className="icon-button"
               type="button"
               aria-label="Activity information"
+              data-tooltip="Activity information"
               onClick={() => onPreview(
                 "Sample activity",
                 "This timeline is pre-populated with illustrative events.",
                 "The prototype does not subscribe to operating-system events or monitor network traffic.",
               )}
             >
-              <MoreHorizontal size={18} />
+              <MoreHorizontal size={24} aria-hidden="true" />
             </button>
           </div>
           <div className="activity-list">
             {activityItems.map(({ title, description, time, icon: Icon }, index) => (
               <div className="activity-item" key={title}>
-                <div className="activity-icon"><Icon size={16} aria-hidden="true" /></div>
+                <div className="activity-icon"><Icon size={20} aria-hidden="true" /></div>
                 <div className="activity-copy">
                   <strong>{title}</strong>
                   <span>{description}</span>
@@ -720,7 +721,7 @@ function ProvidersView({
   return (
     <div className="view-stack">
       <div className="providers-intro surface-card">
-        <div className="providers-intro-icon"><ShieldCheck size={23} /></div>
+        <div className="providers-intro-icon"><ShieldCheck size={24} aria-hidden="true" /></div>
         <div>
           <h2>One place for every connection method.</h2>
           <p>Compare provider capabilities before choosing how this device connects.</p>
@@ -731,22 +732,23 @@ function ProvidersView({
         {providerItems.map(({ name, description, badge, icon: Icon, detail }, index) => (
           <article className="surface-card provider-card" key={name}>
             <div className="provider-card-top">
-              <div className={`provider-logo provider-logo--${index + 1}`}><Icon size={23} /></div>
+              <div className={`provider-logo provider-logo--${index + 1}`}><Icon size={24} aria-hidden="true" /></div>
               <button
                 type="button"
                 className="icon-button"
                 aria-label={`More about ${name}`}
+                data-tooltip={`More about ${name}`}
                 onClick={() => onPreview(name, detail)}
               >
-                <MoreHorizontal size={18} />
+                <MoreHorizontal size={24} aria-hidden="true" />
               </button>
             </div>
             <h3>{name}</h3>
             <p>{description}</p>
             <div className="provider-capabilities">
-              <span><Check size={13} /> IPv4</span>
-              <span><Check size={13} /> Device scope</span>
-              {index === 0 ? <span><Check size={13} /> IPv6</span> : null}
+              <span><Check size={18} /> IPv4</span>
+              <span><Check size={18} /> Device scope</span>
+              {index === 0 ? <span><Check size={18} /> IPv6</span> : null}
             </div>
             <div className="provider-card-bottom">
               <StatusTag>{badge}</StatusTag>
@@ -759,14 +761,14 @@ function ProvidersView({
                   "No provider APIs, services, executables, tunnels, or network configuration are accessed by this button.",
                 )}
               >
-                Preview details <ArrowRight size={15} />
+                Preview details <ArrowRight size={20} />
               </button>
             </div>
           </article>
         ))}
       </div>
       <div className="notice-card">
-        <CircleAlert size={18} />
+        <CircleAlert size={20} aria-hidden="true" />
         <p><strong>Nothing is connected.</strong> The provider catalog is illustrative. No provider has been detected or configured on this device.</p>
       </div>
     </div>
@@ -807,7 +809,7 @@ function DiagnosticsView({
             "This action does not send probes, resolve DNS, inspect routes, read logs, or change network state.",
           )}
         >
-          <Activity size={16} /> Run preview
+          <Activity size={20} /> Run preview
         </button>
       </div>
 
@@ -832,16 +834,17 @@ function DiagnosticsView({
           <div className="diagnostic-list">
             {diagnostics.map(({ title, description, value, icon: Icon }) => (
               <div className="diagnostic-row" key={title}>
-                <span className="diagnostic-row-icon"><Icon size={17} /></span>
+                <span className="diagnostic-row-icon"><Icon size={20} aria-hidden="true" /></span>
                 <div className="diagnostic-row-copy"><strong>{title}</strong><span>{description}</span></div>
                 <code dir="ltr" title={value}>{value}</code>
                 <button
                   className="icon-button"
                   type="button"
                   aria-label={`Copy ${title}`}
+                  data-tooltip={`Copy ${title}`}
                   onClick={() => onCopy(title, value)}
                 >
-                  <Copy size={15} />
+                  <Copy size={20} aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -850,7 +853,7 @@ function DiagnosticsView({
       </div>
 
       <div className="notice-card">
-        <ShieldCheck size={18} />
+        <ShieldCheck size={20} aria-hidden="true" />
         <p><strong>Read-only by design.</strong> The diagnostic screen has no network command, process launcher, or file reader attached to it.</p>
       </div>
     </div>
@@ -872,7 +875,7 @@ function SettingsView({
       <section className="surface-card settings-card">
         <div className="section-card-heading">
           <div><p className="eyebrow">APPEARANCE</p><h3>Make it yours</h3></div>
-          <span className="subtle-icon"><SlidersHorizontal size={18} /></span>
+          <span className="subtle-icon"><SlidersHorizontal size={24} aria-hidden="true" /></span>
         </div>
         <p className="settings-description">Choose the surface theme used by the prototype.</p>
         <div className="theme-options" role="group" aria-label="Color theme">
@@ -884,7 +887,7 @@ function SettingsView({
           >
             <span className="theme-preview theme-preview--dark"><i /><i /><i /></span>
             <span><strong>Dark</strong><small>Low-light workspace</small></span>
-            {theme === "dark" ? <Check size={17} /> : null}
+            {theme === "dark" ? <Check size={20} /> : null}
           </button>
           <button
             type="button"
@@ -894,7 +897,7 @@ function SettingsView({
           >
             <span className="theme-preview theme-preview--light"><i /><i /><i /></span>
             <span><strong>Light</strong><small>Bright workspace</small></span>
-            {theme === "light" ? <Check size={17} /> : null}
+            {theme === "light" ? <Check size={20} /> : null}
           </button>
         </div>
       </section>
@@ -902,7 +905,7 @@ function SettingsView({
       <section className="surface-card settings-card">
         <div className="section-card-heading">
           <div><p className="eyebrow">APPLICATION</p><h3>Prototype information</h3></div>
-          <span className="subtle-icon"><FileText size={18} /></span>
+          <span className="subtle-icon"><FileText size={24} aria-hidden="true" /></span>
         </div>
         <div className="settings-list">
           <div className="settings-row"><span>Interface language</span><strong>English</strong></div>
@@ -920,28 +923,28 @@ function SettingsView({
             "The Tauri backend registers no invoke handlers, the capability list is empty, and this prototype uses sample data only.",
           )}
         >
-          Review safety boundary <ChevronRight size={15} />
+          Review safety boundary <ChevronRight size={20} />
         </button>
       </section>
 
       <section className="surface-card settings-card">
         <div className="section-card-heading">
           <div><p className="eyebrow">INTERACTION STATES</p><h3>Component state preview</h3></div>
-          <span className="subtle-icon"><Activity size={18} /></span>
+          <span className="subtle-icon"><Activity size={24} aria-hidden="true" /></span>
         </div>
         <p className="settings-description">Representative states for the future application. These examples do not trigger network operations.</p>
         <div className="state-preview-grid">
           <div className="state-preview-item">
             <span className="state-preview-label">DISABLED ACTION</span>
             <button className="button button--outlined" type="button" disabled title="Connection actions are disabled in this prototype">
-              <Network size={15} /> Connect
+              <Network size={20} /> Connect
             </button>
             <small>Provider operations are not available.</small>
           </div>
           <div className="state-preview-item">
             <span className="state-preview-label">LOADING</span>
             <div className="state-loading" role="status">
-              <RefreshCw size={16} className="state-spinner" aria-hidden="true" />
+              <RefreshCw size={20} className="state-spinner" aria-hidden="true" />
               <span>Refreshing sample data</span>
             </div>
             <small>Illustrative progress state only.</small>
@@ -949,7 +952,7 @@ function SettingsView({
           <div className="state-preview-item">
             <span className="state-preview-label">ERROR</span>
             <div className="state-error" role="alert">
-              <CircleAlert size={16} aria-hidden="true" />
+              <CircleAlert size={20} aria-hidden="true" />
               <span>Live diagnostics unavailable.</span>
             </div>
             <small>No diagnostic request was made.</small>

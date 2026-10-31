@@ -21,7 +21,7 @@ Tauri 2.12 raised its MSRV to Rust 1.90. The root `netshift` library keeps `rust
 - Main areas: Overview, Providers, Diagnostics, and Settings.
 - Desktop reference sizes: 1440×900, 1280×720, 1024×700, and 960×640.
 - Expanded navigation at widths of 1280 px and above; compact icon navigation below 1280 px.
-- Centralized light/dark color tokens and a restrained cyan accent.
+- Centralized Material 3 light/dark color roles using the monochrome `#111111` / `#eaeaea` pair, with the light theme inverted. The conformance decisions and remaining gaps are recorded in `docs/gui-md3-audit.md`.
 - Keyboard-visible focus, semantic landmarks and labels, a skip link, live announcements for copy feedback, and reduced-motion support.
 - Sample network values are selected from documentation-only ranges where applicable.
 
