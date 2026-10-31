@@ -633,7 +633,7 @@ function OverviewView({
             value="Ethernet 2"
             detail="ifIndex 12 · Sample adapter"
             onCopy={onCopy}
-            copyLabel="Interface identifier"
+            copyLabel="Interface name"
           />
           <MetricCard
             icon={Route}
