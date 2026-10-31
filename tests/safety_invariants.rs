@@ -188,6 +188,32 @@ fn shared_or_unknown_scope_is_rejected_before_provider_execution() {
 }
 
 #[test]
+fn shared_or_unknown_disconnect_is_rejected_before_provider_execution() {
+    for scope in [ChangeScope::SharedNetwork, ChangeScope::Unknown] {
+        let calls = Rc::new(Cell::new(0));
+        let mut provider = FixtureProvider::new(scope, calls.clone());
+        provider.status = ProviderStatus::Connected;
+        let mut manager = ProviderManager::new();
+        manager
+            .register(provider)
+            .expect("fixture registration succeeds");
+
+        assert_eq!(
+            manager.disconnect("integration.fixture"),
+            Err(ManagerError::UnsafeChangeScope { actual: scope })
+        );
+        assert_eq!(calls.get(), 0);
+        assert_eq!(
+            manager
+                .inspect("integration.fixture")
+                .expect("provider remains inspectable")
+                .status,
+            ProviderStatus::Connected
+        );
+    }
+}
+
+#[test]
 fn only_an_explicit_device_scoped_request_can_connect_and_report_success() {
     let calls = Rc::new(Cell::new(0));
     let mut manager = ProviderManager::new();
