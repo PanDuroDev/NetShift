@@ -1,6 +1,8 @@
 use std::{error::Error, fs, path::Path};
 
 fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=icons/icon.png");
     ensure_default_icon().expect("failed to generate the NetShift prototype icon");
     tauri_build::build();
 }
@@ -51,7 +53,6 @@ fn ensure_default_icon() -> Result<(), Box<dyn Error>> {
     let mut writer = encoder.write_header()?;
     writer.write_image_data(&pixels)?;
 
-    println!("cargo:rerun-if-changed=build.rs");
     Ok(())
 }
 
