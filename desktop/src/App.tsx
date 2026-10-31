@@ -922,6 +922,39 @@ function SettingsView({
           Review safety boundary <ChevronRight size={15} />
         </button>
       </section>
+
+      <section className="surface-card settings-card">
+        <div className="section-card-heading">
+          <div><p className="eyebrow">INTERACTION STATES</p><h3>Component state preview</h3></div>
+          <span className="subtle-icon"><Activity size={18} /></span>
+        </div>
+        <p className="settings-description">Representative states for the future application. These examples do not trigger network operations.</p>
+        <div className="state-preview-grid">
+          <div className="state-preview-item">
+            <span className="state-preview-label">DISABLED ACTION</span>
+            <button className="button button--outlined" type="button" disabled title="Connection actions are disabled in this prototype">
+              <Network size={15} /> Connect
+            </button>
+            <small>Provider operations are not available.</small>
+          </div>
+          <div className="state-preview-item">
+            <span className="state-preview-label">LOADING</span>
+            <div className="state-loading" role="status">
+              <RefreshCw size={16} className="state-spinner" aria-hidden="true" />
+              <span>Refreshing sample data</span>
+            </div>
+            <small>Illustrative progress state only.</small>
+          </div>
+          <div className="state-preview-item">
+            <span className="state-preview-label">ERROR</span>
+            <div className="state-error" role="alert">
+              <CircleAlert size={16} aria-hidden="true" />
+              <span>Live diagnostics unavailable.</span>
+            </div>
+            <small>No diagnostic request was made.</small>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
