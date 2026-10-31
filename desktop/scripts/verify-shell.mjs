@@ -12,6 +12,7 @@ const [html, app, styles, tauriConfig, rustMain] = await Promise.all([
 assert.match(html, /<html lang="en" dir="ltr">/, "The HTML document must declare English and LTR.");
 assert.match(app, /document\.documentElement\.dir = "ltr"/, "The application must enforce LTR at runtime.");
 assert.match(app, /document\.documentElement\.lang = "en"/, "The application must enforce English at runtime.");
+assert.doesNotMatch(`${html}\n${app}`, /[\u0600-\u06FF]/, "The UI source must not contain Arabic copy in this English-only phase.");
 
 for (const value of [
   "192.0.2.10",
@@ -30,7 +31,9 @@ assert.match(styles, /max-width: 1023px/, "The small desktop breakpoint is missi
 assert.match(styles, /min-width: 960px/, "The minimum supported desktop width is missing.");
 assert.match(styles, /prefers-reduced-motion/, "Reduced-motion preferences must be respected.");
 assert.match(styles, /:focus-visible/, "Visible keyboard focus styles must be present.");
-assert.match(app, /navigator\.clipboard\.writeText/, "Copy controls must use the Clipboard API.");
+assert.match(app, /await navigator\.clipboard\.writeText\(value\)/, "Copy controls must write the exact original value to the clipboard.");
+assert.match(app, /onCopy\(copyLabel, value\)/, "Metric copy controls must pass the unmodified value.");
+assert.match(styles, /overflow-wrap: anywhere/, "Long technical values must wrap instead of being hidden.");
 assert.match(app, /aria-live="polite"/, "Copy feedback must be announced to assistive technology.");
 assert.match(app, /aria-modal="true"/, "Preview notices must use a modal dialog.");
 
