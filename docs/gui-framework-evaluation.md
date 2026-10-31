@@ -29,7 +29,7 @@ This is not a claim that Tauri is a native widget toolkit. It is a desktop shell
 | Accessibility | Semantic HTML and browser accessibility tree; test each platform WebView | Explicit accessibility roles/properties are available | AccessKit integration is available |
 | Styling flexibility | High; CSS and component-level control | High; custom components and styles | High, but many widgets/states are application-owned |
 | Licensing | Tauri MIT/Apache-2.0; frontend dependencies need individual review | GPLv3 or royalty-free desktop license with attribution; paid options also exist | MIT/Apache-2.0 |
-| Main risk | Different system WebViews can render differently; frontend/Rust IPC boundary needs strict security | Licensing/attribution and text rendering require decisions and validation | Arabic bidi/text editing and extensive custom M3 work |
+| Main risk | Different system WebViews can render differently; frontend/Rust IPC boundary needs strict security | Licensing/attribution and text rendering require decisions and validation | Text rendering/editing validation and extensive custom M3 work |
 
 ### Tauri 2
 
@@ -61,7 +61,7 @@ This is not a claim that Tauri is a native widget toolkit. It is a desktop shell
 - The available Material set is based on Material 3; Material 3 Expressive parity must not be assumed.
 - Font rendering, text editing, and mixed technical values need a real prototype before selection.
 
-**Assessment:** Strongest Rust-native alternative and worth keeping as the fallback if its Arabic text behavior and licensing are acceptable.
+**Assessment:** Strongest Rust-native alternative and worth keeping as the fallback if its text rendering behavior and licensing are acceptable.
 
 ### egui
 
@@ -126,8 +126,6 @@ The Tauri candidate is not final until a minimal shell demonstrates all of the f
 - Slint license terms: https://slint.dev/terms-and-conditions
 - Slint accessibility properties: https://docs.slint.dev/latest/docs/slint/reference/common/
 - egui accessibility: https://github.com/emilk/egui/blob/main/docs/accessibility.md
-- egui bidi tracking issue: https://github.com/emilk/egui/issues/1016
-- iced RTL FAQ: https://book.iced.rs/faq
 
 ## Current conclusion
 
