@@ -93,4 +93,5 @@ jobs:
         uses: dtolnay/rust-toolchain@1.90.0
 
       - name: Check Tauri application
-        run: cargo check --manifest-path desktop/src-tauri/Cargo.toml
+        working-directory: desktop/src-tauri
+        run: cargo check
