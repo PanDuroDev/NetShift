@@ -34,11 +34,12 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Documents safety guarantees and local test commands.
 - CI passed on the merged pull request; shared-network and unknown-impact operations are rejected before provider execution.
 
-**GUI Stage 1 — Framework evaluation: in progress**
+**GUI Stage 1 — Framework evaluation and Tauri prototype: in progress**
 
 - Compares Tauri, Slint, and egui for the Windows-first desktop UI, English-only LTR layout, accessibility, licensing, and Linux portability.
-- Proposes a Tauri 2 + React/TypeScript/Vite proof of concept with English-only LTR UI, pending validation.
-- See [docs/gui-framework-evaluation.md](docs/gui-framework-evaluation.md).
+- The framework comparison is complete; Tauri 2 + React/TypeScript/Vite is the prototype candidate.
+- A mock-only English LTR desktop shell is being built; it does not inspect or change network settings.
+- See [docs/gui-framework-evaluation.md](docs/gui-framework-evaluation.md) and [docs/gui-poc.md](docs/gui-poc.md).
 
 The current Windows network inspector remains read-only. The lifecycle manager does not directly modify Windows routes, DNS, adapters, or firewall rules. No automatic provider switching, background retries, IP rotation, or public egress IP lookup is implemented.
 
@@ -51,6 +52,10 @@ The IPv4/IPv6 status fields describe local address configuration and interface o
 ## Architecture and testing
 
 See [docs/architecture.md](docs/architecture.md) for module responsibilities, Windows API usage, provider contracts, address-family semantics, and safety boundaries. See [docs/testing.md](docs/testing.md) for the local test guide and safety-test coverage.
+
+## Desktop prototype
+
+The initial Tauri shell lives in `desktop/` and is intentionally isolated from the Rust core. See [desktop/README.md](desktop/README.md) for prerequisites and run commands. The shell uses static fixtures only and has no backend network commands.
 
 ## Development
 

@@ -4,3 +4,12 @@
 *.rs.bk
 .DS_Store
 Thumbs.db
+
+/desktop/node_modules/
+/desktop/dist/
+/desktop/src-tauri/target/
+/desktop/src-tauri/gen/schemas/
+
+/desktop/src-tauri/icons/icon.png
+
+/desktop/src-tauri/icons/icon.ico

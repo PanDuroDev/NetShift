@@ -101,3 +101,16 @@ Windows discovery only calls read/query APIs. Provider contract inspection and p
 - Route-row conversion is tested with multiple IPv4/IPv6 rows, multiple interfaces, and an unmatched interface index; destination, next hop, metric, and interface correlation are asserted.
 - Windows CI compiles and tests the platform adapter, including a live read-only snapshot test.
 - Tests must not modify the machine's actual network configuration.
+
+
+## Desktop prototype boundary
+
+The current desktop proof of concept is isolated under `desktop/`:
+
+- `desktop/src/` contains the React presentation layer and static sample data.
+- `desktop/src-tauri/` is a separate Tauri application crate with Rust 1.90 MSRV. The root NetShift library retains its Rust 1.85 MSRV.
+- The Tauri backend registers no `invoke_handler` commands and the frontend invokes no IPC commands.
+- There are no provider SDKs, network inspection calls, shell/process execution APIs, file readers, or network configuration mutations in the prototype.
+- Provider and diagnostic controls show explanatory preview dialogs only.
+
+This isolation is deliberate. A later integration must expose narrow typed read-only commands first, then separately review any explicit provider operations. The frontend must never receive unrestricted operating-system access.
