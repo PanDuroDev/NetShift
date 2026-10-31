@@ -13,7 +13,6 @@ import {
   Clock3,
   Copy,
   FileText,
-  Gauge,
   Globe,
   LayoutDashboard,
   Laptop,
@@ -27,15 +26,12 @@ import {
   Server,
   Settings,
   ShieldCheck,
-  Signal,
   SlidersHorizontal,
   Sun,
-  Wifi,
   X,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 type ViewId = "overview" | "providers" | "diagnostics" | "settings";
 type Theme = "dark" | "light";
@@ -118,7 +114,7 @@ function PageHeading({
   eyebrow: string;
   title: string;
   description: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }) {
   return (
     <div className="page-heading">
@@ -136,7 +132,7 @@ function StatusTag({
   children,
   tone = "neutral",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   tone?: "neutral" | "positive" | "warning";
 }) {
   return <span className={`status-tag status-tag--${tone}`}>{children}</span>;
@@ -150,20 +146,10 @@ function CopyField({
 }: {
   label: string;
   value: string;
-  onCopy: (label: string) => void;
+  onCopy: (label: string, value: string) => void;
   compact?: boolean;
 }) {
-  const copy = async () => {
-    try {
-      if (!navigator.clipboard?.writeText) {
-        throw new Error("Clipboard API is unavailable.");
-      }
-      await navigator.clipboard.writeText(value);
-      onCopy(label);
-    } catch {
-      onCopy(`Clipboard permission is unavailable for ${label}. Select the value to copy it manually.`);
-    }
-  };
+  const copy = () => onCopy(label, value);
 
   return (
     <div className={compact ? "copy-field copy-field--compact" : "copy-field"}>
@@ -218,7 +204,7 @@ function MetricCard({
             type="button"
             className="icon-button metric-copy"
             aria-label={`Copy ${copyLabel}`}
-            onClick={() => onCopy(copyLabel)}
+            onClick={() => onCopy(copyLabel, value)}
           >
             <Copy size={14} aria-hidden="true" />
           </button>
@@ -253,8 +239,14 @@ function App() {
     }
   }, [dialog]);
 
-  const notifyCopy = (label: string) => {
-    setAnnouncement(`${label} copied to clipboard.`);
+  const copyToClipboard = async (label: string, value: string) => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("Clipboard API is unavailable.");
+      await navigator.clipboard.writeText(value);
+      setAnnouncement(`${label} copied to clipboard.`);
+    } catch {
+      setAnnouncement(`Clipboard access is unavailable for ${label}. Select the value to copy it manually.`);
+    }
   };
 
   const showPreviewNotice = (title: string, message: string, detail?: string) => {
@@ -271,7 +263,7 @@ function App() {
     setAnnouncement("Sample data refreshed. No network query was performed.");
   };
 
-  const runSearch = (event: React.FormEvent<HTMLFormElement>) => {
+  const runSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const value = query.trim().toLowerCase();
     if (!value) return;
@@ -464,7 +456,7 @@ function App() {
           {view === "overview" ? (
             <OverviewView
               onNavigate={setView}
-              onCopy={notifyCopy}
+              onCopy={copyToClipboard}
               onPreview={showPreviewNotice}
             />
           ) : null}
@@ -472,7 +464,7 @@ function App() {
             <ProvidersView onPreview={showPreviewNotice} />
           ) : null}
           {view === "diagnostics" ? (
-            <DiagnosticsView onCopy={notifyCopy} onPreview={showPreviewNotice} />
+            <DiagnosticsView onCopy={copyToClipboard} onPreview={showPreviewNotice} />
           ) : null}
           {view === "settings" ? (
             <SettingsView theme={theme} onThemeChange={setTheme} onPreview={showPreviewNotice} />
@@ -531,7 +523,7 @@ function OverviewView({
   onPreview,
 }: {
   onNavigate: (view: ViewId) => void;
-  onCopy: (label: string) => void;
+  onCopy: (label: string, value: string) => void;
   onPreview: (title: string, message: string, detail?: string) => void;
 }) {
   return (
@@ -621,7 +613,7 @@ function OverviewView({
             label="Local IPv4 address"
             value={sampleValues.ipv4}
             detail="Assigned to the sample adapter"
-            onCopy={() => onCopy("IPv4 address")}
+            onCopy={onCopy}
             copyLabel="IPv4 address"
           />
           <MetricCard
@@ -629,7 +621,7 @@ function OverviewView({
             label="Local IPv6 address"
             value={sampleValues.ipv6}
             detail="Documentation prefix"
-            onCopy={() => onCopy("IPv6 address")}
+            onCopy={onCopy}
             copyLabel="IPv6 address"
           />
           <MetricCard
@@ -637,7 +629,7 @@ function OverviewView({
             label="Network interface"
             value="Ethernet 2"
             detail="ifIndex 12 · Sample adapter"
-            onCopy={() => onCopy("Interface identifier")}
+            onCopy={onCopy}
             copyLabel="Interface identifier"
           />
           <MetricCard
@@ -645,7 +637,7 @@ function OverviewView({
             label="Default gateway"
             value={sampleValues.gateway}
             detail="IPv4 default route · Sample"
-            onCopy={() => onCopy("Default gateway")}
+            onCopy={onCopy}
             copyLabel="Default gateway"
           />
         </div>
@@ -782,7 +774,7 @@ function DiagnosticsView({
   onCopy,
   onPreview,
 }: {
-  onCopy: (label: string) => void;
+  onCopy: (label: string, value: string) => void;
   onPreview: (title: string, message: string, detail?: string) => void;
 }) {
   const diagnostics = [
@@ -842,11 +834,7 @@ function DiagnosticsView({
                   className="icon-button"
                   type="button"
                   aria-label={`Copy ${title}`}
-                  onClick={() => {
-                    void navigator.clipboard?.writeText(value)
-                      .then(() => onCopy(title))
-                      .catch(() => onCopy(`Clipboard permission is unavailable for ${title}.`));
-                  }}
+                  onClick={() => onCopy(title, value)}
                 >
                   <Copy size={15} />
                 </button>
