@@ -48,6 +48,7 @@ const sampleValues = {
   mac: "02:00:5e:10:00:00",
   port: "443",
   interfaceId: "Ethernet 2 / ifIndex 12",
+  log: "2026-10-31T10:20:30Z INFO route 192.0.2.10 -> 192.0.2.1 via Ethernet 2",
   path: String.raw`C:\Program Files\NetShift\logs\netshift.log`,
   gateway: "192.0.2.1",
   dns: "192.0.2.53",
@@ -181,7 +182,7 @@ function MetricCard({
   value: string;
   detail: string;
   trend?: "up" | "down";
-  onCopy?: (label: string) => void;
+  onCopy?: (label: string, value: string) => void;
   copyLabel?: string;
 }) {
   return (
@@ -783,6 +784,8 @@ function DiagnosticsView({
     { title: "IPv6 configuration", description: "Local documentation address.", value: sampleValues.ipv6, icon: Network },
     { title: "DNS configuration", description: "Sample resolver assigned to the demo interface.", value: sampleValues.dns, icon: Server },
     { title: "Default route", description: "Sample route used to leave the local subnet.", value: sampleValues.gateway, icon: Route },
+    { title: "Service port", description: "Example HTTPS destination port.", value: sampleValues.port, icon: LockKeyhole },
+    { title: "Diagnostic log line", description: "Illustrative text line containing sample network values.", value: sampleValues.log, icon: FileText },
     { title: "Log file location", description: "Illustrative Windows path for a future diagnostics export.", value: sampleValues.path, icon: FileText },
   ];
 
