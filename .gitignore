@@ -9,3 +9,5 @@ Thumbs.db
 /desktop/dist/
 /desktop/src-tauri/target/
 /desktop/src-tauri/gen/schemas/
+
+/desktop/src-tauri/icons/icon.png
