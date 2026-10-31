@@ -11,7 +11,7 @@ Evaluate a web-based presentation layer hosted by **Tauri 2**, using **React + T
 This is a deliberate separation of concerns:
 
 - Rust owns network inspection, provider contracts, lifecycle management, and all privileged operations.
-- The frontend owns presentation, navigation, accessibility semantics, localization, and user interaction.
+- The frontend owns presentation, navigation, accessibility semantics, English UI copy, and user interaction.
 - Tauri IPC exposes a small, typed command surface. The frontend must not receive unrestricted system access.
 - The GUI must not initiate network-changing operations during startup, rendering, refresh, or navigation. Operations require an explicit user action and truthful provider confirmation.
 
@@ -46,7 +46,7 @@ This is not a claim that Tauri is a native widget toolkit. It is a desktop shell
 - The frontend/Rust boundary is a security boundary. Never expose generic shell, process, filesystem, or network-control commands to the frontend.
 - Current Tauri 2.12.x metadata specifies Rust 1.90; the repository currently declares Rust 1.85. Adopting this version requires an explicit MSRV decision and CI update.
 
-**Assessment:** Best fit for the required English-only LTR UI and the project's detailed, custom Material 3 Expressive design target, provided the proof of concept validates platform behavior and resource use.
+**Assessment:** Best fit for the required English-only LTR UI and the project's detailed, custom Material 3 Expressive design target, provided the proof of concept validates platform behavior, accessibility, and the specified LTR behavior.
 
 ### Slint
 
@@ -72,7 +72,7 @@ This is not a claim that Tauri is a native widget toolkit. It is a desktop shell
 
 **Costs and risks**
 - The application would need to implement most of the specified Material component styling and interaction states itself.
-- The project has known open text-rendering issues that should be checked in the prototype.
+- Text shaping, selection behavior, and clipboard fidelity must be validated in a prototype before this candidate can be reconsidered.
 - Immediate-mode UI is viable, but it is less aligned with the design-system/component-first implementation approach than the leading candidates.
 
 **Assessment:** Good for developer tools and diagnostic panels, but not the preferred foundation for this design-system-driven GUI.
@@ -98,13 +98,16 @@ The Tauri candidate is not final until a minimal shell demonstrates all of the f
 - Builds and opens on Windows; Linux build/runtime is checked separately.
 - Navigation sidebar, top app bar, and responsive content area follow the Issue #7 measurements.
 - Light/dark tokens and a cyan/teal accent can be changed centrally.
-- All visible UI copy is English (US) only in this phase; no Arabic translations or language switcher are required.
+- All visible UI copy is English-only in this phase; no Arabic translations or language switcher are required.
 - The entire application uses LTR direction, left-aligned navigation/content, and LTR keyboard/focus order.
+- Representative technical values are rendered in an LTR-safe way: IPv4 `192.0.2.10`, IPv6 `2001:db8::1`, MAC `02:00:5e:10:00:00`, port `443`, interface ID `Ethernet 2 / ifIndex 12`, file path `C:\\Program Files\\NetShift\\logs\\netshift.log`, and a sample diagnostic log line.
+- For every representative value, verify visual order, selection without character reordering, and an exact clipboard round trip (copied text must equal the original value byte-for-byte).
 - Keyboard-only navigation, visible focus, semantic names, and screen-reader exposure are verified.
 - Buttons, fields, cards, dialogs, tooltips, status indicators, and disabled/loading/error states are represented.
 - Window sizes 1440×900, 1280×720, 1024×700, and 960×640 are checked.
 - The shell uses mock network/provider data only; no real network mutation is possible.
 - The existing Rust tests and Windows CI remain intact.
+- Record cold-start time, idle CPU/memory, and representative interaction CPU/memory during the proof of concept. These measurements are informational in this stage and are not pass/fail criteria or framework-selection gates.
 
 ## Version and dependency notes
 
@@ -129,12 +132,12 @@ The Tauri candidate is not final until a minimal shell demonstrates all of the f
 
 ## Current conclusion
 
-Proceed with a **Tauri 2 + React/TypeScript/Vite proof of concept**, but do not treat the framework as permanently selected until the English-only LTR, accessibility, Windows/Linux, sizing, and resource-use tests above pass. Slint remains the Rust-native fallback. No production GUI or network operation is included in this evaluation.
+Proceed with a **Tauri 2 + React/TypeScript/Vite proof of concept**, but do not treat the framework as permanently selected until the English-only LTR, accessibility, Windows/Linux, and sizing checks above pass. Slint remains the Rust-native fallback. No production GUI or network operation is included in this evaluation.
 
 
 ## Language and direction requirement (confirmed)
 
-- The application UI is English-only for the current project scope. All navigation labels, buttons, headings, dialogs, tooltips, validation messages, status text, and documentation-facing UI copy must be written in English.
+- The application UI is English-only for the current project scope (without an en-US locale-specific formatting requirement). All navigation labels, buttons, headings, dialogs, tooltips, validation messages, status text, and documentation-facing UI copy must be written in English.
 - The application root and all screens use left-to-right direction (`dir="ltr"`). Layout alignment, navigation placement, reading order, and keyboard/focus order must be LTR.
 - Do not add Arabic translations, Arabic-first typography, an RTL mode, or a language switcher in this phase.
-- Network identifiers (IPv4, IPv6, MAC addresses, ports, interface IDs, file paths, and logs) remain selectable and copyable; render code-like values in an LTR-safe style.
+- Network identifiers (IPv4, IPv6, MAC addresses, ports, interface IDs, file paths, and logs) remain selectable and copyable; render code-like values in an LTR-safe style and verify exact clipboard round trips using the representative values above.
