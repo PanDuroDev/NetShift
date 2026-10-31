@@ -36,6 +36,9 @@ assert.match(app, /onCopy\(copyLabel, value\)/, "Metric copy controls must pass 
 assert.match(styles, /overflow-wrap: anywhere/, "Long technical values must wrap instead of being hidden.");
 assert.match(app, /aria-live="polite"/, "Copy feedback must be announced to assistive technology.");
 assert.match(app, /aria-modal="true"/, "Preview notices must use a modal dialog.");
+assert.match(app, /disabled title="Connection actions are disabled in this prototype"/, "The disabled connection action must be represented.");
+assert.match(app, /role="status"/, "The loading state must be exposed as status.");
+assert.match(app, /role="alert"/, "The error state must be announced as an alert.");
 
 const config = JSON.parse(tauriConfig);
 const windowConfig = config.app.windows[0];
