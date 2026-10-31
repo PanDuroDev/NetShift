@@ -339,11 +339,11 @@ function App() {
               onClick={() => setView(id)}
               aria-current={view === id ? "page" : undefined}
               title={label}
-              aria-label={label}
+              aria-label={id === "diagnostics" ? `${label} 3` : label}
             >
               <Icon size={19} strokeWidth={1.9} aria-hidden="true" />
               <span>{label}</span>
-              {id === "diagnostics" ? <span className="nav-count">3</span> : null}
+              {id === "diagnostics" ? <>{" "}<span className="nav-count">3</span></> : null}
             </button>
           ))}
         </nav>
@@ -868,6 +868,7 @@ function SettingsView({
 }) {
   return (
     <div className="view-stack settings-layout">
+      <h2 className="sr-only">Preferences</h2>
       <section className="surface-card settings-card">
         <div className="section-card-heading">
           <div><p className="eyebrow">APPEARANCE</p><h3>Make it yours</h3></div>

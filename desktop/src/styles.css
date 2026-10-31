@@ -414,7 +414,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .provider-card h3 { margin: 17px 0 6px; font-size: 14px; }
 .provider-card > p { min-height: 32px; margin: 0; color: var(--text-secondary); font-size: 10px; line-height: 1.5; }
 .provider-capabilities { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 15px; }
-.provider-capabilities span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 7px; border-radius: 7px; background: var(--surface-raised); color: var(--text-muted); font-size: 8px; }
+.provider-capabilities span { display: inline-flex; align-items: center; gap: 4px; padding: 5px 7px; border-radius: 7px; background: var(--surface-raised); color: var(--text-secondary); font-size: 12px; }
 .provider-capabilities svg { color: var(--success); }
 .provider-card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 15px; }
 .notice-card { display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px; border: 1px solid color-mix(in srgb, var(--warning) 20%, transparent); border-radius: 13px; background: color-mix(in srgb, var(--warning) 5%, var(--surface)); color: var(--warning); }
@@ -453,7 +453,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .theme-option--selected { border-color: var(--accent); background: var(--surface-accent); }
 .theme-option > span:nth-child(2) { display: flex; flex: 1; flex-direction: column; gap: 5px; }
 .theme-option strong { font-size: 11px; }
-.theme-option small { color: var(--text-muted); font-size: 9px; }
+.theme-option small { color: var(--text-secondary); font-size: 12px; }
 .theme-option > svg { color: var(--accent); }
 .theme-preview { display: flex; width: 76px; height: 52px; flex: 0 0 76px; flex-direction: column; gap: 4px; padding: 7px; border: 1px solid var(--line-strong); border-radius: 8px; }
 .theme-preview i { display: block; height: 6px; border-radius: 4px; background: var(--accent); }
@@ -555,8 +555,8 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .button:disabled:hover { background: var(--surface); border-color: var(--line-strong); }
 .state-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
 .state-preview-item { display: flex; min-width: 0; min-height: 128px; flex-direction: column; align-items: flex-start; gap: 10px; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-raised); }
-.state-preview-label { color: var(--text-muted); font-size: 8px; font-weight: 800; letter-spacing: 1px; }
-.state-preview-item small { color: var(--text-muted); font-size: 9px; line-height: 1.5; }
+.state-preview-label { color: var(--text-secondary); font-size: 12px; font-weight: 800; letter-spacing: 1px; }
+.state-preview-item small { color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 .state-loading { display: inline-flex; min-height: 34px; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 10px; font-weight: 650; }
 .state-spinner { color: var(--accent); animation: state-spin 1s linear infinite; }
 .state-error { display: inline-flex; min-height: 34px; align-items: center; gap: 7px; color: var(--danger); font-size: 10px; font-weight: 650; line-height: 1.4; }
