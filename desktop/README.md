@@ -8,7 +8,7 @@ This directory contains the first Tauri 2 + React + TypeScript + Vite shell for 
 - Static sample values only. The UI does not inspect Windows adapters, routes, DNS, provider processes, VPN services, or public IP addresses.
 - No Tauri command handlers are registered. No frontend IPC command is invoked.
 - Provider and diagnostic actions display a preview notice instead of running an operation.
-- Light and dark themes share centralized CSS tokens.
+- Light and dark themes share centralized Material 3 role tokens: `#111111` and `#eaeaea` are inverted between themes. See `docs/gui-md3-audit.md`.
 - The minimum window size is 960 × 640 logical pixels.
 
 ## Requirements

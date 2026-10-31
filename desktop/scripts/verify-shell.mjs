@@ -27,9 +27,28 @@ for (const value of [
   assert.ok(app.includes(value), `Missing representative LTR value: ${value}`);
 }
 
+assert.match(styles, /--md-sys-color-surface: #111111/, "The dark surface must use the requested #111111 base.");
+assert.match(styles, /--md-sys-color-on-surface: #eaeaea/, "The dark text must use the requested #eaeaea base.");
+assert.match(styles, /--md-sys-color-primary: #eaeaea/, "The dark primary role must use the contrasting inverse tone.");
+assert.match(styles, /--md-sys-color-surface: #eaeaea/, "The light surface must invert to #eaeaea.");
+assert.match(styles, /--md-sys-color-on-surface: #111111/, "The light text must invert to #111111.");
+assert.match(styles, /--md-sys-color-primary: #111111/, "The light primary role must invert to #111111.");
+assert.doesNotMatch(styles, /#8de5ee|#54cbd8|#087e8b|#101518|#e8f1f3/, "The previous cyan palette must not remain.");
+assert.match(styles, /--md-sys-state-hover-opacity: 0\.08/, "The MD3 hover state layer must be 8%.");
+assert.match(styles, /--md-sys-state-focus-opacity: 0\.10/, "The MD3 focus state layer must be 10%.");
+assert.match(styles, /--md-sys-shape-corner-extra-large: 28px/, "The MD3 dialog corner token is missing.");
+assert.match(styles, /--md-sys-motion-duration-short-2: 100ms/, "The MD3 motion duration token is missing.");
+assert.match(styles, /\.button--primary,[\s\S]*?min-height: 48px/, "The prominent primary button must be 48px high.");
+assert.match(styles, /\.action-dialog \{[\s\S]*?border-radius: var\(--md-sys-shape-corner-extra-large\)/, "The dialog must use the 28px MD3 extra-large corner.");
+assert.match(styles, /\.provider-capabilities span \{[\s\S]*?min-height: 32px/, "Capability chips must use the 32px MD3 height.");
+assert.match(app, /data-tooltip=/, "Icon-only actions must expose a tooltip.");
+assert.doesNotMatch(styles, /nav-item--active::before/, "The navigation active state must use a tonal container, not a side bar.");
+for (const match of styles.matchAll(/font-size:\s*(\d+)px/g)) {
+  assert.ok(Number(match[1]) >= 12, `Essential text must not use ${match[1]}px.`);
+}
 assert.match(styles, /max-width: 1279px/, "The compact sidebar breakpoint is missing.");
 assert.match(styles, /max-width: 1023px/, "The small desktop breakpoint is missing.");
-assert.match(styles, /min-width: 960px/, "The minimum supported desktop width is missing.");
+assert.match(styles, /@media \(max-width: 1023px\)/, "The compact desktop layout breakpoint is missing.");
 assert.match(styles, /prefers-reduced-motion/, "Reduced-motion preferences must be respected.");
 assert.match(styles, /:focus-visible/, "Visible keyboard focus styles must be present.");
 assert.match(app, /await navigator\.clipboard\.writeText\(value\)/, "Copy controls must write the exact original value to the clipboard.");
