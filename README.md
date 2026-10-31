@@ -36,8 +36,8 @@ NetShift is a Windows-focused network route management utility. The project is b
 
 **GUI Stage 1 — Framework evaluation: in progress**
 
-- Compares Tauri, Slint, and egui for the Windows-first desktop UI, Arabic RTL, accessibility, licensing, and Linux portability.
-- Proposes a Tauri 2 + React/TypeScript/Vite proof of concept, pending validation.
+- Compares Tauri, Slint, and egui for the Windows-first desktop UI, English-only LTR layout, accessibility, licensing, and Linux portability.
+- Proposes a Tauri 2 + React/TypeScript/Vite proof of concept with English-only LTR UI, pending validation.
 - See [docs/gui-framework-evaluation.md](docs/gui-framework-evaluation.md).
 
 The current Windows network inspector remains read-only. The lifecycle manager does not directly modify Windows routes, DNS, adapters, or firewall rules. No automatic provider switching, background retries, IP rotation, or public egress IP lookup is implemented.
