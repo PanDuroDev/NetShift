@@ -30,7 +30,7 @@ assert.match(styles, /max-width: 1023px/, "The small desktop breakpoint is missi
 assert.match(styles, /min-width: 960px/, "The minimum supported desktop width is missing.");
 assert.match(styles, /prefers-reduced-motion/, "Reduced-motion preferences must be respected.");
 assert.match(styles, /:focus-visible/, "Visible keyboard focus styles must be present.");
-assert.match(app, /navigator\\.clipboard\\.writeText/, "Copy controls must use the Clipboard API.");
+assert.match(app, /navigator\.clipboard\.writeText/, "Copy controls must use the Clipboard API.");
 assert.match(app, /aria-live="polite"/, "Copy feedback must be announced to assistive technology.");
 assert.match(app, /aria-modal="true"/, "Preview notices must use a modal dialog.");
 
