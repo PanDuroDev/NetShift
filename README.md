@@ -27,11 +27,18 @@ NetShift is a Windows-focused network route management utility. The project is b
 - Preserves the pre-operation snapshot and reports failures with the best-known resulting state.
 - Uses deterministic mock providers; no production VPN/WARP integration is included.
 
-**Stage 5 — Safety invariants and integration tests: in progress**
+**Stage 5 — Safety invariants and integration tests: merged**
 
 - Enforces device-only change scope before provider execution.
 - Adds cross-module tests for read-only inspection, explicit operation requests, and provider success/failure reporting.
 - Documents safety guarantees and local test commands.
+- CI passed on the merged pull request; shared-network and unknown-impact operations are rejected before provider execution.
+
+**GUI Stage 1 — Framework evaluation: in progress**
+
+- Compares Tauri, Slint, and egui for the Windows-first desktop UI, Arabic RTL, accessibility, licensing, and Linux portability.
+- Proposes a Tauri 2 + React/TypeScript/Vite proof of concept, pending validation.
+- See [docs/gui-framework-evaluation.md](docs/gui-framework-evaluation.md).
 
 The current Windows network inspector remains read-only. The lifecycle manager does not directly modify Windows routes, DNS, adapters, or firewall rules. No automatic provider switching, background retries, IP rotation, or public egress IP lookup is implemented.
 
