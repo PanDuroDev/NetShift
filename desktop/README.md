@@ -30,7 +30,7 @@ From this directory:
 Build and run the static checks:
 
     npm run check
-    cargo check --manifest-path src-tauri/Cargo.toml
+    cd src-tauri && cargo check
 
 The frontend can also run in a browser for layout review:
 
