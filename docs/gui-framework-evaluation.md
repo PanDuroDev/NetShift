@@ -100,7 +100,7 @@ The Tauri candidate is not final until a minimal shell demonstrates all of the f
 - Light/dark tokens and a cyan/teal accent can be changed centrally.
 - All visible UI copy is English-only in this phase; no Arabic translations or language switcher are required.
 - The entire application uses LTR direction, left-aligned navigation/content, and LTR keyboard/focus order.
-- Representative technical values are rendered in an LTR-safe way: IPv4 `192.0.2.10`, IPv6 `2001:db8::1`, MAC `02:00:5e:10:00:00`, port `443`, interface ID `Ethernet 2 / ifIndex 12`, file path `C:\\Program Files\\NetShift\\logs\\netshift.log`, and a sample diagnostic log line.
+- Representative technical values are rendered in an LTR-safe way: IPv4 `192.0.2.10`, IPv6 `2001:db8::1`, MAC `02:00:5e:10:00:00`, port `443`, interface ID `Ethernet 2 / ifIndex 12`, file path `C:\Program Files\NetShift\logs\netshift.log`, and a sample diagnostic log line.
 - For every representative value, verify visual order, selection without character reordering, and an exact clipboard round trip (copied text must equal the original value byte-for-byte).
 - Keyboard-only navigation, visible focus, semantic names, and screen-reader exposure are verified.
 - Buttons, fields, cards, dialogs, tooltips, status indicators, and disabled/loading/error states are represented.
