@@ -339,6 +339,7 @@ function App() {
               onClick={() => setView(id)}
               aria-current={view === id ? "page" : undefined}
               title={label}
+              aria-label={label}
             >
               <Icon size={19} strokeWidth={1.9} aria-hidden="true" />
               <span>{label}</span>
@@ -485,6 +486,7 @@ function App() {
       <dialog
         ref={dialogRef}
         className="action-dialog"
+        aria-modal="true"
         aria-labelledby="dialog-title"
         onClose={() => setDialog(null)}
       >
@@ -872,12 +874,11 @@ function SettingsView({
           <span className="subtle-icon"><SlidersHorizontal size={18} /></span>
         </div>
         <p className="settings-description">Choose the surface theme used by the prototype.</p>
-        <div className="theme-options" role="radiogroup" aria-label="Color theme">
+        <div className="theme-options" role="group" aria-label="Color theme">
           <button
             type="button"
             className={theme === "dark" ? "theme-option theme-option--selected" : "theme-option"}
-            role="radio"
-            aria-checked={theme === "dark"}
+            aria-pressed={theme === "dark"}
             onClick={() => onThemeChange("dark")}
           >
             <span className="theme-preview theme-preview--dark"><i /><i /><i /></span>
@@ -887,8 +888,7 @@ function SettingsView({
           <button
             type="button"
             className={theme === "light" ? "theme-option theme-option--selected" : "theme-option"}
-            role="radio"
-            aria-checked={theme === "light"}
+            aria-pressed={theme === "light"}
             onClick={() => onThemeChange("light")}
           >
             <span className="theme-preview theme-preview--light"><i /><i /><i /></span>
