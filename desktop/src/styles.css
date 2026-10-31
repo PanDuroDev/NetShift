@@ -544,3 +544,25 @@ button:focus-visible, input:focus-visible, a:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  filter: saturate(0.55);
+  transform: none;
+}
+.button:disabled:hover { background: var(--surface); border-color: var(--line-strong); }
+.state-preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.state-preview-item { display: flex; min-width: 0; min-height: 128px; flex-direction: column; align-items: flex-start; gap: 10px; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-raised); }
+.state-preview-label { color: var(--text-muted); font-size: 8px; font-weight: 800; letter-spacing: 1px; }
+.state-preview-item small { color: var(--text-muted); font-size: 9px; line-height: 1.5; }
+.state-loading { display: inline-flex; min-height: 34px; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 10px; font-weight: 650; }
+.state-spinner { color: var(--accent); animation: state-spin 1s linear infinite; }
+.state-error { display: inline-flex; min-height: 34px; align-items: center; gap: 7px; color: var(--danger); font-size: 10px; font-weight: 650; line-height: 1.4; }
+@keyframes state-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1023px) {
+  .state-preview-grid { grid-template-columns: minmax(0, 1fr); }
+  .state-preview-item { min-height: 104px; }
+}
