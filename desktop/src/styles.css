@@ -443,7 +443,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .diagnostic-row-copy { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
 .diagnostic-row-copy strong { font-size: 10px; }
 .diagnostic-row-copy span { overflow: hidden; color: var(--text-muted); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
-.diagnostic-row code { overflow: hidden; color: var(--text-secondary); font-family: "Cascadia Code", Consolas, monospace; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.diagnostic-row code { min-width: 0; color: var(--text-secondary); font-family: "Cascadia Code", Consolas, monospace; font-size: 9px; line-height: 1.55; overflow-wrap: anywhere; word-break: break-word; }
 
 .settings-layout { max-width: 950px; }
 .settings-card { padding: 22px; }
