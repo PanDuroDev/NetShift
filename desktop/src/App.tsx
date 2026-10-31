@@ -154,7 +154,7 @@ function CopyField({
 
   return (
     <div className={compact ? "copy-field copy-field--compact" : "copy-field"}>
-      <code dir="ltr">{value}</code>
+      <code dir="ltr" title={value}>{value}</code>
       <button
         className="icon-button copy-button"
         type="button"
@@ -256,7 +256,7 @@ function App() {
 
   const refreshSample = () => {
     setLastUpdated(
-      new Date().toLocaleTimeString("en-US", {
+      new Date().toLocaleTimeString("en", {
         hour: "numeric",
         minute: "2-digit",
       }),
@@ -834,7 +834,7 @@ function DiagnosticsView({
               <div className="diagnostic-row" key={title}>
                 <span className="diagnostic-row-icon"><Icon size={17} /></span>
                 <div className="diagnostic-row-copy"><strong>{title}</strong><span>{description}</span></div>
-                <code dir="ltr">{value}</code>
+                <code dir="ltr" title={value}>{value}</code>
                 <button
                   className="icon-button"
                   type="button"
