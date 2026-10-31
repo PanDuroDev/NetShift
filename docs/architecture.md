@@ -79,12 +79,24 @@ No dynamic third-party plugin loader is introduced. Provider implementations can
 
 ## Safety boundary
 
-Windows discovery only calls read/query APIs. Provider contract inspection and previews are read-only; Stage 4 invokes provider operations only after explicit manager requests. The manager itself never directly modifies DNS, routes, adapter state, MAC addresses, firewall rules, proxy settings, or IP assignments. No network information is collected or transmitted outside the local process. No automatic connection, disconnection, provider switching, or address rotation is implemented.
+Windows discovery only calls read/query APIs. Provider contract inspection and previews are read-only; Stage 4 invokes provider operations only after explicit manager requests. The manager rejects plans scoped to the shared network or with unknown impact; only `ThisDevice` plans may execute. The manager itself never directly modifies DNS, routes, adapter state, MAC addresses, firewall rules, proxy settings, or IP assignments. No network information is collected or transmitted outside the local process. No automatic connection, disconnection, provider switching, or address rotation is implemented.
+
+## Safety invariants
+
+- Network inspection is read-only and failures remain errors rather than empty successful snapshots.
+- Registering or inspecting a provider never starts an operation; connect/disconnect require an explicit manager call.
+- The lifecycle manager executes only plans whose declared impact is `ThisDevice`; `SharedNetwork` and `Unknown` scopes are rejected before provider execution.
+- Local interface addresses are never treated as public egress IPs. The project does not claim a public IP changed based on local interface changes.
+- No router configuration, DNS, routes, adapters, MAC addresses, firewall rules, proxy settings, or IP assignments are changed by the current implementation.
+- Automatic IP rotation and service-limit circumvention are out of scope.
+- Provider errors cross the boundary as stable categories; credentials, tokens, and raw provider output must not be logged or copied into test snapshots.
+- Mutable manager access serializes provider operations per manager instance; asynchronous or concurrent provider execution is not implemented.
 
 ## Testing strategy
 
 - Core models and address-family summaries are tested without operating-system access.
-- Provider contracts and lifecycle coordination are tested with deterministic mocks, including explicit-operation gating, capability rejection, state validation, confirmed transitions, duplicate registration, and failure-state reporting.
+- Provider contracts and lifecycle coordination are tested with deterministic mocks, including explicit-operation gating, capability rejection, state validation, device-only scope enforcement, confirmed transitions, duplicate registration, and failure-state reporting.
+- Cross-module integration tests combine the read-only inspector contract with the provider manager and verify that all fixtures remain in memory.
 - Windows sockaddr conversion is tested with IPv4 and IPv6 fixtures.
 - Route-row conversion is tested with multiple IPv4/IPv6 rows, multiple interfaces, and an unmatched interface index; destination, next hop, metric, and interface correlation are asserted.
 - Windows CI compiles and tests the platform adapter, including a live read-only snapshot test.

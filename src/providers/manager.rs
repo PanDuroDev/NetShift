@@ -7,8 +7,8 @@
 use std::collections::BTreeMap;
 
 use super::{
-    ConnectionProvider, ProviderChangePlan, ProviderError, ProviderErrorCategory, ProviderMetadata,
-    ProviderOperation, ProviderSnapshot, ProviderStatus,
+    ChangeScope, ConnectionProvider, ProviderChangePlan, ProviderError, ProviderErrorCategory,
+    ProviderMetadata, ProviderOperation, ProviderSnapshot, ProviderStatus,
 };
 
 /// Errors detected by the manager before an operation can be safely invoked.
@@ -35,6 +35,11 @@ pub enum ManagerError {
     },
     /// The provider returned a plan for a different operation.
     InvalidPlan,
+    /// The provider plan may affect the shared network or has unknown scope.
+    UnsafeChangeScope {
+        /// Scope reported by the provider plan.
+        actual: ChangeScope,
+    },
     /// Provider inspection or planning failed before execution.
     Provider(ProviderError),
 }
@@ -62,6 +67,12 @@ impl std::fmt::Display for ManagerError {
             }
             Self::InvalidPlan => {
                 formatter.write_str("provider returned a plan for the wrong operation")
+            }
+            Self::UnsafeChangeScope { actual } => {
+                write!(
+                    formatter,
+                    "provider change scope is not device-only: {actual:?}"
+                )
             }
             Self::Provider(error) => error.fmt(formatter),
         }
@@ -211,6 +222,9 @@ impl ProviderManager {
         .map_err(ManagerError::Provider)?;
         if plan.operation != operation {
             return Err(ManagerError::InvalidPlan);
+        }
+        if plan.scope != ChangeScope::ThisDevice {
+            return Err(ManagerError::UnsafeChangeScope { actual: plan.scope });
         }
 
         let execution = match operation {
