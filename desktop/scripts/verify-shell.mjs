@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const [html, app, styles, tauriConfig, rustMain] = await Promise.all([
+const [html, app, styles, tauriConfig, rustMain, buildScript] = await Promise.all([
   readFile(new URL("../index.html", import.meta.url), "utf8"),
   readFile(new URL("../src/App.tsx", import.meta.url), "utf8"),
   readFile(new URL("../src/styles.css", import.meta.url), "utf8"),
   readFile(new URL("../src-tauri/tauri.conf.json", import.meta.url), "utf8"),
   readFile(new URL("../src-tauri/src/main.rs", import.meta.url), "utf8"),
+  readFile(new URL("../src-tauri/build.rs", import.meta.url), "utf8"),
 ]);
 
 assert.match(html, /<html lang="en" dir="ltr">/, "The HTML document must declare English and LTR.");
