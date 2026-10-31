@@ -12,6 +12,7 @@ publish = false
 [build-dependencies]
 tauri-build = "=2.7.4"
 png = "=0.18.1"
+ico = "=0.6.0"
 
 [dependencies]
 tauri = "=2.12.5"
