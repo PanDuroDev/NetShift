@@ -41,6 +41,7 @@ assert.match(app, /disabled title="Connection actions are disabled in this proto
 assert.match(app, /role="status"/, "The loading state must be exposed as status.");
 assert.match(app, /role="alert"/, "The error state must be announced as an alert.");
 
+assert.ok(buildScript.includes('icon_directory.join("icon.png")'), "The build must generate the default Tauri window icon.");
 const config = JSON.parse(tauriConfig);
 const windowConfig = config.app.windows[0];
 assert.equal(windowConfig.minWidth, 960, "Tauri must enforce the 960px minimum width.");
