@@ -18,6 +18,8 @@ for (const value of [
   "2001:db8::1",
   "02:00:5e:10:00:00",
   "Ethernet 2 / ifIndex 12",
+  "443",
+  "2026-10-31T10:20:30Z INFO route 192.0.2.10 -> 192.0.2.1 via Ethernet 2",
   "C:\\Program Files\\NetShift\\logs\\netshift.log",
 ]) {
   assert.ok(app.includes(value), `Missing representative LTR value: ${value}`);
@@ -28,6 +30,9 @@ assert.match(styles, /max-width: 1023px/, "The small desktop breakpoint is missi
 assert.match(styles, /min-width: 960px/, "The minimum supported desktop width is missing.");
 assert.match(styles, /prefers-reduced-motion/, "Reduced-motion preferences must be respected.");
 assert.match(styles, /:focus-visible/, "Visible keyboard focus styles must be present.");
+assert.match(app, /navigator\\.clipboard\\.writeText/, "Copy controls must use the Clipboard API.");
+assert.match(app, /aria-live="polite"/, "Copy feedback must be announced to assistive technology.");
+assert.match(app, /aria-modal="true"/, "Preview notices must use a modal dialog.");
 
 const config = JSON.parse(tauriConfig);
 const windowConfig = config.app.windows[0];
